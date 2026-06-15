@@ -655,8 +655,12 @@ describe('BackupService', () => {
         playersRepositoryMock.create.mockImplementation((value) => value);
         ordersRepositoryMock.create.mockImplementation((value) => value);
 
-        playersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
-        ordersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        playersRepositoryMock.save.mockImplementation((value) =>
+            Promise.resolve(value),
+        );
+        ordersRepositoryMock.save.mockImplementation((value) =>
+            Promise.resolve(value),
+        );
 
         await service.importBackup(dto);
 
@@ -690,7 +694,9 @@ describe('BackupService', () => {
 
         ownedPokemonsRepositoryMock.findOne.mockResolvedValue(null);
         ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
-        ownedPokemonsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        ownedPokemonsRepositoryMock.save.mockImplementation((value) =>
+            Promise.resolve(value),
+        );
 
         const result = await service.importBackup(dto);
 
@@ -702,21 +708,52 @@ describe('BackupService', () => {
 
         expect(ownedPokemonsRepositoryMock.create).toHaveBeenCalledWith({
             id: 'owned-pokemon-id',
-            pokemonId: 636,
-            name: 'Larvesta',
-            sprite: 'sprite-url',
-            breedPokemonId: 636,
-            breedPokemonName: 'Larvesta',
-            status: 'F5 PFT',
-            gender: 'Fêmea',
-            observations: 'Serve para time de Sol.',
             pokemonDexId: 636,
             pokemonName: 'Larvesta',
             pokemonSprite: 'sprite-url',
             breedBaseDexId: 636,
             breedBaseName: 'Larvesta',
+            status: 'F5 PFT',
+            gender: 'Fêmea',
             nature: null,
             notes: 'Serve para time de Sol.',
+            createdAt: undefined,
+            updatedAt: undefined,
         });
+    });
+
+    it('should apply default status and gender when importing legacy owned Pokémon without them', async () => {
+        const dto = {
+            ownedPokemons: [
+                {
+                    id: 'owned-pokemon-id',
+                    pokemonId: 636,
+                    name: 'Larvesta',
+                },
+            ],
+        };
+
+        ownedPokemonsRepositoryMock.findOne.mockResolvedValue(null);
+        ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
+        ownedPokemonsRepositoryMock.save.mockImplementation((value) =>
+            Promise.resolve(value),
+        );
+
+        const result = await service.importBackup(dto);
+
+        expect(result.summary.ownedPokemons).toEqual({
+            imported: 1,
+            skipped: 0,
+            invalid: 0,
+        });
+
+        expect(ownedPokemonsRepositoryMock.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                pokemonDexId: 636,
+                pokemonName: 'Larvesta',
+                status: 'CAPTURED',
+                gender: 'GENDERLESS',
+            }),
+        );
     });
 });

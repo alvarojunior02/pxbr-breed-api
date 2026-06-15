@@ -447,8 +447,15 @@ export class BackupService {
                     ownedPokemon.breedPokemonName ||
                     ownedPokemon.basePokemonName,
             ),
-            status: this.getBackupString(ownedPokemon.status) || undefined,
-            gender: this.getBackupString(ownedPokemon.gender) || undefined,
+            status:
+                this.getBackupString(ownedPokemon.status) ||
+                this.getBackupString(ownedPokemon.breedLevel) ||
+                this.getBackupString(ownedPokemon.level) ||
+                'CAPTURED',
+            gender:
+                this.getBackupString(ownedPokemon.gender) ||
+                this.getBackupString(ownedPokemon.sex) ||
+                'GENDERLESS',
             nature: this.getBackupString(ownedPokemon.nature),
             notes: this.getBackupString(
                 ownedPokemon.notes || ownedPokemon.observations,
