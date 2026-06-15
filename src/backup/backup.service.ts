@@ -38,15 +38,17 @@ type NormalizedOwnedHaBackup = {
     breedableValue: number | null;
     castratedValue: number | null;
     notes: string | null;
-    pokemons: {
-        id?: string;
-        pokemonDexId: number;
-        pokemonName: string;
-        pokemonSprite: string | null;
-        isBase: boolean;
-    }[];
+    pokemons: NormalizedOwnedHaPokemonBackup[];
     createdAt?: Date | string;
     updatedAt?: Date | string;
+};
+
+type NormalizedOwnedHaPokemonBackup = {
+    id?: string;
+    pokemonDexId: number;
+    pokemonName: string;
+    pokemonSprite: string | null;
+    isBase: boolean;
 };
 
 @Injectable()
@@ -569,11 +571,14 @@ export class BackupService {
               ? ownedHa.evolutionLine
               : [];
 
-        const pokemons = pokemonsSource
+        const pokemons: NormalizedOwnedHaPokemonBackup[] = pokemonsSource
             .map((pokemon) =>
                 this.normalizeOwnedHaPokemonPayload(pokemon, basePokemonId),
             )
-            .filter((pokemon) => pokemon !== null);
+            .filter(
+                (pokemon): pokemon is NormalizedOwnedHaPokemonBackup =>
+                    pokemon !== null,
+            );
 
         if (pokemons.length === 0 && basePokemonId) {
             const pokemonName = this.getBackupString(
@@ -612,7 +617,7 @@ export class BackupService {
     private normalizeOwnedHaPokemonPayload(
         pokemon: Record<string, unknown>,
         basePokemonId: number | null,
-    ) {
+    ): NormalizedOwnedHaPokemonBackup | null {
         const pokemonDexId = this.getBackupNumber(
             pokemon.pokemonDexId || pokemon.pokemonId || pokemon.dexId,
         );
