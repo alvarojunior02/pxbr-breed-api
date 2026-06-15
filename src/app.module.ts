@@ -11,6 +11,7 @@ import { PlayersModule } from './players/players.module';
 import { OrdersModule } from './orders/orders.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { OrderStatusHistoryModule } from './order-status-history/order-status-history.module';
+import { OwnedPokemonsModule } from './owned-pokemons/owned-pokemons.module';
 
 @Module({
     imports: [
@@ -33,6 +34,7 @@ import { OrderStatusHistoryModule } from './order-status-history/order-status-hi
         OrdersModule,
         TransactionsModule,
         OrderStatusHistoryModule,
+        OwnedPokemonsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
