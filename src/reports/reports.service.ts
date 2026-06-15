@@ -205,6 +205,47 @@ export class ReportsService {
         };
     }
 
+    async getRevenueByDay(query: FindReportsQueryDto = {}) {
+        const orders = await this.getOrdersByPeriod(query);
+
+        const groupedDays = new Map<
+            string,
+            {
+                date: string;
+                totalRevenue: number;
+                paidRevenue: number;
+                pendingRevenue: number;
+                orders: number;
+            }
+        >();
+
+        for (const order of orders) {
+            const date = this.formatDateKey(order.createdAt);
+
+            const current = groupedDays.get(date) || {
+                date,
+                totalRevenue: 0,
+                paidRevenue: 0,
+                pendingRevenue: 0,
+                orders: 0,
+            };
+
+            current.totalRevenue += order.total || 0;
+            current.paidRevenue += order.paidAmount || 0;
+            current.pendingRevenue += Math.max(
+                (order.total || 0) - (order.paidAmount || 0),
+                0,
+            );
+            current.orders += 1;
+
+            groupedDays.set(date, current);
+        }
+
+        return Array.from(groupedDays.values()).sort((a, b) =>
+            a.date.localeCompare(b.date),
+        );
+    }
+
     private async getOrdersByPeriod(query: FindReportsQueryDto) {
         const orders = await this.ordersRepository.find({
             relations: {
@@ -254,6 +295,10 @@ export class ReportsService {
         }
 
         return true;
+    }
+
+    private formatDateKey(date: Date | string) {
+        return new Date(date).toISOString().slice(0, 10);
     }
 
     private getEndOfDay(date: string) {

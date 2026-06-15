@@ -250,4 +250,47 @@ describe('ReportsService', () => {
             pendingRevenue: 3500000,
         });
     });
+
+    it('should get daily revenue report', async () => {
+        ordersRepositoryMock.find.mockResolvedValue([
+            {
+                id: 'order-1',
+                total: 7000000,
+                paidAmount: 3500000,
+                archived: false,
+                createdAt: new Date('2026-06-15T10:00:00.000Z'),
+            },
+            {
+                id: 'order-2',
+                total: 7000000,
+                paidAmount: 7000000,
+                archived: false,
+                createdAt: new Date('2026-06-15T18:00:00.000Z'),
+            },
+            {
+                id: 'order-3',
+                total: 3500000,
+                paidAmount: 0,
+                archived: false,
+                createdAt: new Date('2026-06-16T10:00:00.000Z'),
+            },
+        ]);
+
+        await expect(service.getRevenueByDay()).resolves.toEqual([
+            {
+                date: '2026-06-15',
+                totalRevenue: 14000000,
+                paidRevenue: 10500000,
+                pendingRevenue: 3500000,
+                orders: 2,
+            },
+            {
+                date: '2026-06-16',
+                totalRevenue: 3500000,
+                paidRevenue: 0,
+                pendingRevenue: 3500000,
+                orders: 1,
+            },
+        ]);
+    });
 });

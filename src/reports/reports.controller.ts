@@ -52,4 +52,13 @@ export class ReportsController {
     getDashboardSummary(@Query() query: FindReportsQueryDto) {
         return this.reportsService.getDashboardSummary(query);
     }
+
+    @Get('revenue-by-day')
+    @ApiOperation({ summary: 'Get daily revenue report' })
+    @ApiOkResponse({
+        description: 'Returns daily revenue grouped by order creation date.',
+    })
+    getRevenueByDay(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getRevenueByDay(query);
+    }
 }

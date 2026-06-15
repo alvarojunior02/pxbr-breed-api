@@ -11,6 +11,7 @@ describe('ReportsController', () => {
         getTopBuyingPlayers: jest.fn(),
         getPlayersDebt: jest.fn(),
         getDashboardSummary: jest.fn(),
+        getRevenueByDay: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -121,5 +122,28 @@ describe('ReportsController', () => {
         await expect(controller.getDashboardSummary()).resolves.toEqual(report);
 
         expect(reportsServiceMock.getDashboardSummary).toHaveBeenCalled();
+    });
+
+    it('should get daily revenue report', async () => {
+        const query = {
+            startDate: '2026-06-01',
+            endDate: '2026-06-30',
+        };
+
+        const report = [
+            {
+                date: '2026-06-15',
+                totalRevenue: 14000000,
+                paidRevenue: 7000000,
+                pendingRevenue: 7000000,
+                orders: 2,
+            },
+        ];
+
+        reportsServiceMock.getRevenueByDay.mockResolvedValue(report);
+
+        await expect(controller.getRevenueByDay(query)).resolves.toEqual(report);
+
+        expect(reportsServiceMock.getRevenueByDay).toHaveBeenCalledWith(query);
     });
 });
