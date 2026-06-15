@@ -10,6 +10,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { PlayersModule } from './players/players.module';
 import { OrdersModule } from './orders/orders.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { OrderStatusHistoryModule } from './order-status-history/order-status-history.module';
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import { TransactionsModule } from './transactions/transactions.module';
         PlayersModule,
         OrdersModule,
         TransactionsModule,
+        OrderStatusHistoryModule,
     ],
     controllers: [AppController],
     providers: [AppService],
