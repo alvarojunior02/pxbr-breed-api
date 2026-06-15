@@ -6,20 +6,27 @@ import { AppService } from "./app.service";
 import { getDatabaseConfig } from "./database/database.config";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
-            isGlobal: true
+            isGlobal: true,
         }),
+        ThrottlerModule.forRoot([
+            {
+                ttl: 60000,
+                limit: 60,
+            },
+        ]),
         TypeOrmModule.forRootAsync({
             inject: [ConfigService],
-            useFactory: getDatabaseConfig
+            useFactory: getDatabaseConfig,
         }),
         UsersModule,
-        AuthModule
+        AuthModule,
     ],
     controllers: [AppController],
-    providers: [AppService]
+    providers: [AppService],
 })
 export class AppModule {}
