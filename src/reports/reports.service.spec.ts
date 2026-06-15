@@ -293,4 +293,41 @@ describe('ReportsService', () => {
             },
         ]);
     });
+
+    it('should get orders by status report', async () => {
+        orderPokemonsRepositoryMock.find.mockResolvedValue([
+            {
+                id: 'pokemon-1',
+                status: 'Pendente',
+                order: {
+                    createdAt: new Date('2026-06-15T10:00:00.000Z'),
+                },
+            },
+            {
+                id: 'pokemon-2',
+                status: 'Pendente',
+                order: {
+                    createdAt: new Date('2026-06-15T11:00:00.000Z'),
+                },
+            },
+            {
+                id: 'pokemon-3',
+                status: 'Pronto',
+                order: {
+                    createdAt: new Date('2026-06-16T10:00:00.000Z'),
+                },
+            },
+        ]);
+
+        await expect(service.getOrdersByStatus()).resolves.toEqual([
+            {
+                status: 'Pendente',
+                quantity: 2,
+            },
+            {
+                status: 'Pronto',
+                quantity: 1,
+            },
+        ]);
+    });
 });

@@ -246,6 +246,32 @@ export class ReportsService {
         );
     }
 
+    async getOrdersByStatus(query: FindReportsQueryDto = {}) {
+        const orderPokemons = await this.getOrderPokemonsByPeriod(query);
+
+        const groupedStatuses = new Map<string, {
+            status: string;
+            quantity: number;
+        }>();
+
+        for (const pokemon of orderPokemons) {
+            const status = pokemon.status || 'Sem status';
+
+            const current = groupedStatuses.get(status) || {
+                status,
+                quantity: 0,
+            };
+
+            current.quantity += 1;
+
+            groupedStatuses.set(status, current);
+        }
+
+        return Array.from(groupedStatuses.values()).sort(
+            (a, b) => b.quantity - a.quantity || a.status.localeCompare(b.status),
+        );
+    }
+
     private async getOrdersByPeriod(query: FindReportsQueryDto) {
         const orders = await this.ordersRepository.find({
             relations: {
