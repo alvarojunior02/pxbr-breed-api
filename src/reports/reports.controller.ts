@@ -88,4 +88,18 @@ export class ReportsController {
     getHaVsRegularSales(@Query() query: FindReportsQueryDto) {
         return this.reportsService.getHaVsRegularSales(query);
     }
+
+    @Get('payments-by-player')
+    @ApiOperation({ summary: 'Get payments by player report' })
+    @ApiOkResponse({ description: 'Returns paid amounts grouped by player.' })
+    getPaymentsByPlayer(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getPaymentsByPlayer(query);
+    }
+
+    @Get('revenue-summary')
+    @ApiOperation({ summary: 'Get revenue summary report' })
+    @ApiOkResponse({ description: 'Returns revenue summary metrics.' })
+    getRevenueSummary(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getRevenueSummary(query);
+    }
 }

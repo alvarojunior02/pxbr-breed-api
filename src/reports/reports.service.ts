@@ -5,6 +5,7 @@ import { OrderPokemon } from '../orders/entities/order-pokemon.entity';
 import { Order } from '../orders/entities/order.entity';
 import { Player } from '../players/entities/player.entity';
 import { FindReportsQueryDto } from './dto/find-reports-query.dto';
+import { Transaction } from '../transactions/entities/transaction.entity';
 
 @Injectable()
 export class ReportsService {
@@ -15,6 +16,8 @@ export class ReportsService {
         private readonly orderPokemonsRepository: Repository<OrderPokemon>,
         @InjectRepository(Player)
         private readonly playersRepository: Repository<Player>,
+        @InjectRepository(Transaction)
+        private readonly transactionsRepository: Repository<Transaction>,
     ) {}
 
     async getTopSellingPokemons(query: FindReportsQueryDto = {}) {
@@ -45,8 +48,12 @@ export class ReportsService {
             groupedPokemons.set(key, current);
         }
 
-        return Array.from(groupedPokemons.values()).sort(
-            (a, b) => b.quantity - a.quantity || b.totalValue - a.totalValue,
+        return this.applyLimit(
+            Array.from(groupedPokemons.values()).sort(
+                (a, b) =>
+                    b.quantity - a.quantity || b.totalValue - a.totalValue,
+            ),
+            query.limit,
         );
     }
 
@@ -79,8 +86,12 @@ export class ReportsService {
             groupedHas.set(pokemon.abilityName, current);
         }
 
-        return Array.from(groupedHas.values()).sort(
-            (a, b) => b.quantity - a.quantity || b.totalValue - a.totalValue,
+        return this.applyLimit(
+            Array.from(groupedHas.values()).sort(
+                (a, b) =>
+                    b.quantity - a.quantity || b.totalValue - a.totalValue,
+            ),
+            query.limit,
         );
     }
 
@@ -114,9 +125,13 @@ export class ReportsService {
             groupedPlayers.set(order.playerId, current);
         }
 
-        return Array.from(groupedPlayers.values()).sort(
-            (a, b) =>
-                b.totalValue - a.totalValue || b.totalOrders - a.totalOrders,
+        return this.applyLimit(
+            Array.from(groupedPlayers.values()).sort(
+                (a, b) =>
+                    b.totalValue - a.totalValue ||
+                    b.totalOrders - a.totalOrders,
+            ),
+            query.limit,
         );
     }
 
@@ -156,9 +171,12 @@ export class ReportsService {
             groupedPlayers.set(order.playerId, current);
         }
 
-        return Array.from(groupedPlayers.values()).sort(
-            (a, b) =>
-                b.debtAmount - a.debtAmount || b.openOrders - a.openOrders,
+        return this.applyLimit(
+            Array.from(groupedPlayers.values()).sort(
+                (a, b) =>
+                    b.debtAmount - a.debtAmount || b.openOrders - a.openOrders,
+            ),
+            query.limit,
         );
     }
 
@@ -334,6 +352,74 @@ export class ReportsService {
         return [report.HA, report.Regular];
     }
 
+    async getPaymentsByPlayer(query: FindReportsQueryDto = {}) {
+        const transactions = await this.getTransactionsByPeriod(query);
+
+        const groupedPlayers = new Map<
+            string,
+            {
+                playerId: string;
+                nick: string;
+                totalPaid: number;
+                transactions: number;
+            }
+        >();
+
+        for (const transaction of transactions) {
+            const current = groupedPlayers.get(transaction.playerId) || {
+                playerId: transaction.playerId,
+                nick: transaction.player?.nick || 'Unknown',
+                totalPaid: 0,
+                transactions: 0,
+            };
+
+            current.totalPaid += transaction.amount || 0;
+            current.transactions += 1;
+
+            groupedPlayers.set(transaction.playerId, current);
+        }
+
+        return this.applyLimit(
+            Array.from(groupedPlayers.values()).sort(
+                (a, b) =>
+                    b.totalPaid - a.totalPaid ||
+                    b.transactions - a.transactions,
+            ),
+            query.limit,
+        );
+    }
+
+    async getRevenueSummary(query: FindReportsQueryDto = {}) {
+        const orders = await this.getOrdersByPeriod(query);
+
+        const totalRevenue = orders.reduce(
+            (total, order) => total + (order.total || 0),
+            0,
+        );
+
+        const paidRevenue = orders.reduce(
+            (total, order) => total + (order.paidAmount || 0),
+            0,
+        );
+
+        const pendingRevenue = orders.reduce(
+            (total, order) =>
+                total +
+                Math.max((order.total || 0) - (order.paidAmount || 0), 0),
+            0,
+        );
+
+        return {
+            totalRevenue,
+            paidRevenue,
+            pendingRevenue,
+            averageOrderValue: orders.length
+                ? Math.round(totalRevenue / orders.length)
+                : 0,
+            orders: orders.length,
+        };
+    }
+
     private async getOrdersByPeriod(query: FindReportsQueryDto) {
         const orders = await this.ordersRepository.find({
             relations: {
@@ -384,6 +470,27 @@ export class ReportsService {
         }
 
         return true;
+    }
+
+    private async getTransactionsByPeriod(query: FindReportsQueryDto) {
+        const transactions = await this.transactionsRepository.find({
+            relations: {
+                player: true,
+                order: true,
+            },
+        });
+
+        return transactions.filter((transaction) =>
+            this.isWithinPeriod(transaction.createdAt, query),
+        );
+    }
+
+    private applyLimit<T>(items: T[], limit?: number) {
+        if (!limit) {
+            return items;
+        }
+
+        return items.slice(0, limit);
     }
 
     private formatDateKey(date: Date | string) {

@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDateString, IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class FindReportsQueryDto {
     @ApiPropertyOptional({ example: '2026-06-01' })
@@ -11,4 +12,12 @@ export class FindReportsQueryDto {
     @IsOptional()
     @IsDateString()
     endDate?: string;
+
+    @ApiPropertyOptional({ example: 5 })
+    @IsOptional()
+    @Transform(({ value }) => Number(value))
+    @IsInt()
+    @Min(1)
+    @Max(100)
+    limit?: number;
 }

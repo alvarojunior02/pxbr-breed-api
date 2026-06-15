@@ -15,6 +15,8 @@ describe('ReportsController', () => {
         getOrdersByStatus: jest.fn(),
         getOrdersByDay: jest.fn(),
         getHaVsRegularSales: jest.fn(),
+        getPaymentsByPlayer: jest.fn(),
+        getRevenueSummary: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -219,5 +221,49 @@ describe('ReportsController', () => {
         await expect(controller.getHaVsRegularSales(query)).resolves.toEqual(report);
 
         expect(reportsServiceMock.getHaVsRegularSales).toHaveBeenCalledWith(query);
+    });
+
+    it('should get payments by player report', async () => {
+        const query = {
+            startDate: '2026-06-01',
+            endDate: '2026-06-30',
+            limit: 5,
+        };
+
+        const report = [
+            {
+                playerId: 'player-id',
+                nick: 'EKNight008',
+                totalPaid: 18000000,
+                transactions: 3,
+            },
+        ];
+
+        reportsServiceMock.getPaymentsByPlayer.mockResolvedValue(report);
+
+        await expect(controller.getPaymentsByPlayer(query)).resolves.toEqual(report);
+
+        expect(reportsServiceMock.getPaymentsByPlayer).toHaveBeenCalledWith(query);
+    });
+
+    it('should get revenue summary report', async () => {
+        const query = {
+            startDate: '2026-06-01',
+            endDate: '2026-06-30',
+        };
+
+        const report = {
+            totalRevenue: 100000000,
+            paidRevenue: 70000000,
+            pendingRevenue: 30000000,
+            averageOrderValue: 12500000,
+            orders: 8,
+        };
+
+        reportsServiceMock.getRevenueSummary.mockResolvedValue(report);
+
+        await expect(controller.getRevenueSummary(query)).resolves.toEqual(report);
+
+        expect(reportsServiceMock.getRevenueSummary).toHaveBeenCalledWith(query);
     });
 });

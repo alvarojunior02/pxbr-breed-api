@@ -4,6 +4,7 @@ import { OrderPokemon } from '../orders/entities/order-pokemon.entity';
 import { Order } from '../orders/entities/order.entity';
 import { Player } from '../players/entities/player.entity';
 import { ReportsService } from './reports.service';
+import { Transaction } from '../transactions/entities/transaction.entity';
 
 describe('ReportsService', () => {
     let service: ReportsService;
@@ -17,6 +18,10 @@ describe('ReportsService', () => {
     };
 
     const playersRepositoryMock = {
+        find: jest.fn(),
+    };
+
+    const transactionsRepositoryMock = {
         find: jest.fn(),
     };
 
@@ -35,6 +40,10 @@ describe('ReportsService', () => {
                 {
                     provide: getRepositoryToken(Player),
                     useValue: playersRepositoryMock,
+                },
+                {
+                    provide: getRepositoryToken(Transaction),
+                    useValue: transactionsRepositoryMock,
                 },
             ],
         }).compile();
@@ -415,5 +424,72 @@ describe('ReportsService', () => {
                 totalValue: 3500000,
             },
         ]);
+    });
+
+    it('should get payments by player report', async () => {
+        transactionsRepositoryMock.find.mockResolvedValue([
+            {
+                playerId: 'player-1',
+                amount: 7000000,
+                createdAt: new Date('2026-06-15T10:00:00.000Z'),
+                player: {
+                    nick: 'EKNight008',
+                },
+            },
+            {
+                playerId: 'player-1',
+                amount: 3500000,
+                createdAt: new Date('2026-06-15T11:00:00.000Z'),
+                player: {
+                    nick: 'EKNight008',
+                },
+            },
+            {
+                playerId: 'player-2',
+                amount: 2000000,
+                createdAt: new Date('2026-06-16T10:00:00.000Z'),
+                player: {
+                    nick: 'OtherPlayer',
+                },
+            },
+        ]);
+
+        await expect(service.getPaymentsByPlayer()).resolves.toEqual([
+            {
+                playerId: 'player-1',
+                nick: 'EKNight008',
+                totalPaid: 10500000,
+                transactions: 2,
+            },
+            {
+                playerId: 'player-2',
+                nick: 'OtherPlayer',
+                totalPaid: 2000000,
+                transactions: 1,
+            },
+        ]);
+    });
+
+    it('should get revenue summary report', async () => {
+        ordersRepositoryMock.find.mockResolvedValue([
+            {
+                total: 7000000,
+                paidAmount: 3500000,
+                createdAt: new Date('2026-06-15T10:00:00.000Z'),
+            },
+            {
+                total: 3500000,
+                paidAmount: 3500000,
+                createdAt: new Date('2026-06-16T10:00:00.000Z'),
+            },
+        ]);
+
+        await expect(service.getRevenueSummary()).resolves.toEqual({
+            totalRevenue: 10500000,
+            paidRevenue: 7000000,
+            pendingRevenue: 3500000,
+            averageOrderValue: 5250000,
+            orders: 2,
+        });
     });
 });
