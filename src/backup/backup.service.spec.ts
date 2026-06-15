@@ -334,26 +334,32 @@ describe('BackupService', () => {
                 players: {
                     imported: 1,
                     skipped: 0,
+                    invalid: 0,
                 },
                 orders: {
                     imported: 1,
                     skipped: 0,
+                    invalid: 0,
                 },
                 transactions: {
                     imported: 1,
                     skipped: 0,
+                    invalid: 0,
                 },
                 orderStatusHistory: {
                     imported: 1,
                     skipped: 0,
+                    invalid: 0,
                 },
                 ownedPokemons: {
                     imported: 1,
                     skipped: 0,
+                    invalid: 0,
                 },
                 ownedHas: {
                     imported: 1,
                     skipped: 0,
+                    invalid: 0,
                 },
             },
         });
@@ -445,6 +451,7 @@ describe('BackupService', () => {
         expect(result.summary.players).toEqual({
             imported: 0,
             skipped: 1,
+            invalid: 0,
         });
 
         expect(playersRepositoryMock.create).not.toHaveBeenCalled();
@@ -473,6 +480,7 @@ describe('BackupService', () => {
         expect(result.summary.ownedPokemons).toEqual({
             imported: 1,
             skipped: 0,
+            invalid: 0,
         });
 
         expect(ownedPokemonsRepositoryMock.findOne).not.toHaveBeenCalled();
@@ -482,5 +490,66 @@ describe('BackupService', () => {
             status: 'F5 PFT',
             gender: 'Fêmea',
         });
+    });
+
+    it('should mark dependent records as invalid when references do not exist', async () => {
+        const dto = {
+            orders: [
+                {
+                    id: 'order-id',
+                    playerId: 'missing-player-id',
+                    subtotal: 7000000,
+                    discount: 0,
+                    total: 7000000,
+                    paidAmount: 0,
+                    paid: false,
+                    needsFemale: false,
+                    archived: false,
+                    pokemons: [],
+                },
+            ],
+            transactions: [
+                {
+                    id: 'transaction-id',
+                    playerId: 'missing-player-id',
+                    orderId: 'missing-order-id',
+                    amount: 3500000,
+                },
+            ],
+            orderStatusHistory: [
+                {
+                    id: 'history-id',
+                    orderId: 'missing-order-id',
+                    newStatus: 'Em andamento',
+                },
+            ],
+        };
+
+        playersRepositoryMock.findOne.mockResolvedValue(null);
+        ordersRepositoryMock.findOne.mockResolvedValue(null);
+        transactionsRepositoryMock.findOne.mockResolvedValue(null);
+        orderStatusHistoryRepositoryMock.findOne.mockResolvedValue(null);
+
+        const result = await service.importBackup(dto);
+
+        expect(result.summary.orders).toEqual({
+            imported: 0,
+            skipped: 0,
+            invalid: 1,
+        });
+        expect(result.summary.transactions).toEqual({
+            imported: 0,
+            skipped: 0,
+            invalid: 1,
+        });
+        expect(result.summary.orderStatusHistory).toEqual({
+            imported: 0,
+            skipped: 0,
+            invalid: 1,
+        });
+
+        expect(ordersRepositoryMock.save).not.toHaveBeenCalled();
+        expect(transactionsRepositoryMock.save).not.toHaveBeenCalled();
+        expect(orderStatusHistoryRepositoryMock.save).not.toHaveBeenCalled();
     });
 });

@@ -12,6 +12,7 @@ import { ImportBackupDto } from './dto/import-backup.dto';
 type ImportStats = {
     imported: number;
     skipped: number;
+    invalid: number;
 };
 
 @Injectable()
@@ -89,11 +90,26 @@ export class BackupService {
     async importBackup(importBackupDto: ImportBackupDto) {
         const data = this.normalizeBackupPayload(importBackupDto);
 
-        const players = await this.importPlayers(data.players);
-        const orders = await this.importOrders(data.orders);
-        const transactions = await this.importTransactions(data.transactions);
+        const importedPlayerIds = new Set<string>();
+        const importedOrderIds = new Set<string>();
+
+        const players = await this.importPlayers(
+            data.players,
+            importedPlayerIds,
+        );
+        const orders = await this.importOrders(
+            data.orders,
+            importedPlayerIds,
+            importedOrderIds,
+        );
+        const transactions = await this.importTransactions(
+            data.transactions,
+            importedPlayerIds,
+            importedOrderIds,
+        );
         const orderStatusHistory = await this.importOrderStatusHistory(
             data.orderStatusHistory,
+            importedOrderIds,
         );
         const ownedPokemons = await this.importOwnedPokemons(
             data.ownedPokemons,
@@ -133,20 +149,29 @@ export class BackupService {
 
     private async importPlayers(
         players: Record<string, unknown>[],
+        importedPlayerIds: Set<string>,
     ): Promise<ImportStats> {
         const stats = this.createStats();
 
         for (const player of players) {
             if (await this.existsById(this.playersRepository, player.id)) {
+                if (typeof player.id === 'string') {
+                    importedPlayerIds.add(player.id);
+                }
+
                 stats.skipped++;
                 continue;
             }
 
             const { orders, ...playerPayload } = player;
 
-            await this.playersRepository.save(
+            const savedPlayer = await this.playersRepository.save(
                 this.playersRepository.create(playerPayload),
             );
+
+            if (typeof savedPlayer.id === 'string') {
+                importedPlayerIds.add(savedPlayer.id);
+            }
 
             stats.imported++;
         }
@@ -156,12 +181,23 @@ export class BackupService {
 
     private async importOrders(
         orders: Record<string, unknown>[],
+        importedPlayerIds: Set<string>,
+        importedOrderIds: Set<string>,
     ): Promise<ImportStats> {
         const stats = this.createStats();
 
         for (const order of orders) {
             if (await this.existsById(this.ordersRepository, order.id)) {
+                if (typeof order.id === 'string') {
+                    importedOrderIds.add(order.id);
+                }
+
                 stats.skipped++;
+                continue;
+            }
+
+            if (!(await this.canUsePlayer(order.playerId, importedPlayerIds))) {
+                stats.invalid++;
                 continue;
             }
 
@@ -177,12 +213,16 @@ export class BackupService {
                   })
                 : [];
 
-            await this.ordersRepository.save(
+            const savedOrder = await this.ordersRepository.save(
                 this.ordersRepository.create({
                     ...orderPayload,
                     pokemons,
                 }),
             );
+
+            if (typeof savedOrder.id === 'string') {
+                importedOrderIds.add(savedOrder.id);
+            }
 
             stats.imported++;
         }
@@ -192,6 +232,8 @@ export class BackupService {
 
     private async importTransactions(
         transactions: Record<string, unknown>[],
+        importedPlayerIds: Set<string>,
+        importedOrderIds: Set<string>,
     ): Promise<ImportStats> {
         const stats = this.createStats();
 
@@ -203,6 +245,20 @@ export class BackupService {
                 )
             ) {
                 stats.skipped++;
+                continue;
+            }
+
+            const canUsePlayer = await this.canUsePlayer(
+                transaction.playerId,
+                importedPlayerIds,
+            );
+            const canUseOrder = await this.canUseOrder(
+                transaction.orderId,
+                importedOrderIds,
+            );
+
+            if (!canUsePlayer || !canUseOrder) {
+                stats.invalid++;
                 continue;
             }
 
@@ -220,6 +276,7 @@ export class BackupService {
 
     private async importOrderStatusHistory(
         orderStatusHistory: Record<string, unknown>[],
+        importedOrderIds: Set<string>,
     ): Promise<ImportStats> {
         const stats = this.createStats();
 
@@ -231,6 +288,11 @@ export class BackupService {
                 )
             ) {
                 stats.skipped++;
+                continue;
+            }
+
+            if (!(await this.canUseOrder(history.orderId, importedOrderIds))) {
+                stats.invalid++;
                 continue;
             }
 
@@ -322,10 +384,38 @@ export class BackupService {
         return Boolean(existingRecord);
     }
 
+    private async canUsePlayer(
+        playerId: unknown,
+        importedPlayerIds: Set<string>,
+    ) {
+        if (!playerId || typeof playerId !== 'string') {
+            return false;
+        }
+
+        if (importedPlayerIds.has(playerId)) {
+            return true;
+        }
+
+        return this.existsById(this.playersRepository, playerId);
+    }
+
+    private async canUseOrder(orderId: unknown, importedOrderIds: Set<string>) {
+        if (!orderId || typeof orderId !== 'string') {
+            return false;
+        }
+
+        if (importedOrderIds.has(orderId)) {
+            return true;
+        }
+
+        return this.existsById(this.ordersRepository, orderId);
+    }
+
     private createStats(): ImportStats {
         return {
             imported: 0,
             skipped: 0,
+            invalid: 0,
         };
     }
 }
