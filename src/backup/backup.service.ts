@@ -16,6 +16,21 @@ type ImportStats = {
     invalid: number;
 };
 
+type NormalizedOwnedPokemonBackup = {
+    id?: string;
+    pokemonDexId: number | null;
+    pokemonName: string | null;
+    pokemonSprite: string | null;
+    breedBaseDexId: number | null;
+    breedBaseName: string | null;
+    status?: string;
+    gender?: string;
+    nature: string | null;
+    notes: string | null;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+};
+
 @Injectable()
 export class BackupService {
     constructor(
@@ -359,14 +374,90 @@ export class BackupService {
                 continue;
             }
 
+            const normalizedOwnedPokemon =
+                this.normalizeOwnedPokemonPayload(ownedPokemon);
+
+            if (
+                !normalizedOwnedPokemon.pokemonDexId ||
+                !normalizedOwnedPokemon.pokemonName
+            ) {
+                stats.invalid++;
+                continue;
+            }
+
             await this.ownedPokemonsRepository.save(
-                this.ownedPokemonsRepository.create(ownedPokemon),
+                this.ownedPokemonsRepository.create({
+                    ...normalizedOwnedPokemon,
+                    pokemonDexId: normalizedOwnedPokemon.pokemonDexId,
+                    pokemonName: normalizedOwnedPokemon.pokemonName,
+                }),
             );
 
             stats.imported++;
         }
 
         return stats;
+    }
+
+    private getBackupNumber(value: unknown): number | null {
+        if (typeof value === 'number') {
+            return value;
+        }
+
+        if (typeof value === 'string' && value.trim()) {
+            const parsedValue = Number(value);
+
+            return Number.isNaN(parsedValue) ? null : parsedValue;
+        }
+
+        return null;
+    }
+
+    private getBackupString(value: unknown): string | null {
+        if (typeof value === 'string' && value.trim()) {
+            return value;
+        }
+
+        return null;
+    }
+
+    private normalizeOwnedPokemonPayload(
+        ownedPokemon: Record<string, unknown>,
+    ): NormalizedOwnedPokemonBackup {
+        return {
+            id: this.getBackupString(ownedPokemon.id) || undefined,
+            pokemonDexId: this.getBackupNumber(
+                ownedPokemon.pokemonDexId ||
+                    ownedPokemon.pokemonId ||
+                    ownedPokemon.dexId,
+            ),
+            pokemonName: this.getBackupString(
+                ownedPokemon.pokemonName || ownedPokemon.name,
+            ),
+            pokemonSprite: this.getBackupString(
+                ownedPokemon.pokemonSprite || ownedPokemon.sprite,
+            ),
+            breedBaseDexId: this.getBackupNumber(
+                ownedPokemon.breedBaseDexId ||
+                    ownedPokemon.breedPokemonId ||
+                    ownedPokemon.basePokemonId,
+            ),
+            breedBaseName: this.getBackupString(
+                ownedPokemon.breedBaseName ||
+                    ownedPokemon.breedPokemonName ||
+                    ownedPokemon.basePokemonName,
+            ),
+            status: this.getBackupString(ownedPokemon.status) || undefined,
+            gender: this.getBackupString(ownedPokemon.gender) || undefined,
+            nature: this.getBackupString(ownedPokemon.nature),
+            notes: this.getBackupString(
+                ownedPokemon.notes || ownedPokemon.observations,
+            ),
+            createdAt:
+                this.getBackupString(ownedPokemon.createdAt) || undefined,
+            updatedAt:
+                this.getBackupString(ownedPokemon.updatedAt) || undefined,
+        };
     }
 
     private async importOwnedHas(

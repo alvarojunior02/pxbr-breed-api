@@ -449,8 +449,13 @@ describe('BackupService', () => {
             id: 'owned-pokemon-id',
             pokemonDexId: 636,
             pokemonName: 'Larvesta',
+            pokemonSprite: null,
+            breedBaseDexId: null,
+            breedBaseName: null,
             status: 'F5 PFT',
             gender: 'Fêmea',
+            nature: null,
+            notes: null,
         });
 
         expect(ownedHasRepositoryMock.create).toHaveBeenCalledWith({
@@ -536,8 +541,13 @@ describe('BackupService', () => {
         expect(ownedPokemonsRepositoryMock.create).toHaveBeenCalledWith({
             pokemonDexId: 636,
             pokemonName: 'Larvesta',
+            pokemonSprite: null,
+            breedBaseDexId: null,
+            breedBaseName: null,
             status: 'F5 PFT',
             gender: 'Fêmea',
+            nature: null,
+            notes: null,
         });
     });
 
@@ -659,5 +669,54 @@ describe('BackupService', () => {
                 ],
             }),
         );
+    });
+
+    it('should normalize legacy owned Pokémon fields during import', async () => {
+        const dto = {
+            ownedPokemons: [
+                {
+                    id: 'owned-pokemon-id',
+                    pokemonId: 636,
+                    name: 'Larvesta',
+                    sprite: 'sprite-url',
+                    breedPokemonId: 636,
+                    breedPokemonName: 'Larvesta',
+                    status: 'F5 PFT',
+                    gender: 'Fêmea',
+                    observations: 'Serve para time de Sol.',
+                },
+            ],
+        };
+
+        ownedPokemonsRepositoryMock.findOne.mockResolvedValue(null);
+        ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
+        ownedPokemonsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+
+        const result = await service.importBackup(dto);
+
+        expect(result.summary.ownedPokemons).toEqual({
+            imported: 1,
+            skipped: 0,
+            invalid: 0,
+        });
+
+        expect(ownedPokemonsRepositoryMock.create).toHaveBeenCalledWith({
+            id: 'owned-pokemon-id',
+            pokemonId: 636,
+            name: 'Larvesta',
+            sprite: 'sprite-url',
+            breedPokemonId: 636,
+            breedPokemonName: 'Larvesta',
+            status: 'F5 PFT',
+            gender: 'Fêmea',
+            observations: 'Serve para time de Sol.',
+            pokemonDexId: 636,
+            pokemonName: 'Larvesta',
+            pokemonSprite: 'sprite-url',
+            breedBaseDexId: 636,
+            breedBaseName: 'Larvesta',
+            nature: null,
+            notes: 'Serve para time de Sol.',
+        });
     });
 });
