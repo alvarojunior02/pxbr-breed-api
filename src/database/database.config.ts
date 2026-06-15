@@ -1,26 +1,26 @@
-import { ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ConfigService } from "@nestjs/config";
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 
 export function getDatabaseConfig(configService: ConfigService): TypeOrmModuleOptions {
-    const databaseType = configService.get<string>('DATABASE_TYPE') || 'better-sqlite3';
+    const databaseType = configService.get<string>("DATABASE_TYPE") || "better-sqlite3";
 
-    if (databaseType === 'postgres') {
+    if (databaseType === "postgres") {
         return {
-            type: 'postgres',
-            host: configService.get<string>('DATABASE_HOST') || 'localhost',
-            port: configService.get<number>('DATABASE_PORT') || 5432,
-            username: configService.get<string>('DATABASE_USERNAME') || 'postgres',
-            password: configService.get<string>('DATABASE_PASSWORD') || 'postgres',
-            database: configService.get<string>('DATABASE_NAME') || 'pxbr_breed',
-            entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-            synchronize: configService.get<string>('APP_ENV') !== 'production',
+            type: "postgres",
+            host: configService.get<string>("DATABASE_HOST") || "localhost",
+            port: configService.get<number>("DATABASE_PORT") || 5432,
+            username: configService.get<string>("DATABASE_USERNAME") || "postgres",
+            password: configService.get<string>("DATABASE_PASSWORD") || "postgres",
+            database: configService.get<string>("DATABASE_NAME") || "pxbr_breed",
+            entities: [__dirname + "/../**/*.entity{.ts,.js}"],
+            synchronize: configService.get<string>("APP_ENV") !== "production"
         };
     }
 
     return {
-        type: 'better-sqlite3',
-        database: configService.get<string>('DATABASE_NAME') || 'pxbr-breed.sqlite',
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        synchronize: configService.get<string>('APP_ENV') !== 'production',
+        type: "better-sqlite3",
+        database: configService.get<string>("DATABASE_NAME") || "pxbr-breed.sqlite",
+        entities: [__dirname + "/../**/*.entity{.ts,.js}"],
+        synchronize: configService.get<string>("APP_ENV") !== "production"
     };
 }

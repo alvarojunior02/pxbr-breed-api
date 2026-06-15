@@ -1,7 +1,5 @@
-import type { Request } from 'express';
+import type { Request } from "express";
 
-export function getRefreshTokenFromRequest(
-    request: Request,
-): string | undefined {
+export function getRefreshTokenFromRequest(request: Request): string | undefined {
     return request.cookies?.refreshToken;
 }
