@@ -79,4 +79,13 @@ export class ReportsController {
     getOrdersByDay(@Query() query: FindReportsQueryDto) {
         return this.reportsService.getOrdersByDay(query);
     }
+
+    @Get('ha-vs-regular-sales')
+    @ApiOperation({ summary: 'Get HA vs regular sales report' })
+    @ApiOkResponse({
+        description: 'Returns sales grouped by HA and regular abilities.',
+    })
+    getHaVsRegularSales(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getHaVsRegularSales(query);
+    }
 }

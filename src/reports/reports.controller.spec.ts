@@ -14,6 +14,7 @@ describe('ReportsController', () => {
         getRevenueByDay: jest.fn(),
         getOrdersByStatus: jest.fn(),
         getOrdersByDay: jest.fn(),
+        getHaVsRegularSales: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -192,5 +193,31 @@ describe('ReportsController', () => {
         await expect(controller.getOrdersByDay(query)).resolves.toEqual(report);
 
         expect(reportsServiceMock.getOrdersByDay).toHaveBeenCalledWith(query);
+    });
+
+    it('should get HA vs regular sales report', async () => {
+        const query = {
+            startDate: '2026-06-01',
+            endDate: '2026-06-30',
+        };
+
+        const report = [
+            {
+                type: 'HA',
+                quantity: 8,
+                totalValue: 56000000,
+            },
+            {
+                type: 'Regular',
+                quantity: 12,
+                totalValue: 42000000,
+            },
+        ];
+
+        reportsServiceMock.getHaVsRegularSales.mockResolvedValue(report);
+
+        await expect(controller.getHaVsRegularSales(query)).resolves.toEqual(report);
+
+        expect(reportsServiceMock.getHaVsRegularSales).toHaveBeenCalledWith(query);
     });
 });

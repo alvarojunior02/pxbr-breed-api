@@ -308,6 +308,32 @@ export class ReportsService {
         );
     }
 
+    async getHaVsRegularSales(query: FindReportsQueryDto = {}) {
+        const orderPokemons = await this.getOrderPokemonsByPeriod(query);
+
+        const report = {
+            HA: {
+                type: 'HA',
+                quantity: 0,
+                totalValue: 0,
+            },
+            Regular: {
+                type: 'Regular',
+                quantity: 0,
+                totalValue: 0,
+            },
+        };
+
+        for (const pokemon of orderPokemons) {
+            const type = pokemon.abilityIsHa ? 'HA' : 'Regular';
+
+            report[type].quantity += 1;
+            report[type].totalValue += pokemon.value || 0;
+        }
+
+        return [report.HA, report.Regular];
+    }
+
     private async getOrdersByPeriod(query: FindReportsQueryDto) {
         const orders = await this.ordersRepository.find({
             relations: {

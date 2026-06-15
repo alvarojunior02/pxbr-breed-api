@@ -374,4 +374,46 @@ describe('ReportsService', () => {
             },
         ]);
     });
+
+    it('should get HA vs regular sales report', async () => {
+        orderPokemonsRepositoryMock.find.mockResolvedValue([
+            {
+                id: 'pokemon-1',
+                abilityIsHa: true,
+                value: 7000000,
+                order: {
+                    createdAt: new Date('2026-06-15T10:00:00.000Z'),
+                },
+            },
+            {
+                id: 'pokemon-2',
+                abilityIsHa: true,
+                value: 7000000,
+                order: {
+                    createdAt: new Date('2026-06-15T11:00:00.000Z'),
+                },
+            },
+            {
+                id: 'pokemon-3',
+                abilityIsHa: false,
+                value: 3500000,
+                order: {
+                    createdAt: new Date('2026-06-16T10:00:00.000Z'),
+                },
+            },
+        ]);
+
+        await expect(service.getHaVsRegularSales()).resolves.toEqual([
+            {
+                type: 'HA',
+                quantity: 2,
+                totalValue: 14000000,
+            },
+            {
+                type: 'Regular',
+                quantity: 1,
+                totalValue: 3500000,
+            },
+        ]);
+    });
 });
