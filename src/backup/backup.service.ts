@@ -31,6 +31,24 @@ type NormalizedOwnedPokemonBackup = {
     updatedAt?: Date | string;
 };
 
+type NormalizedOwnedHaBackup = {
+    id?: string;
+    abilityName: string | null;
+    nature: string | null;
+    breedableValue: number | null;
+    castratedValue: number | null;
+    notes: string | null;
+    pokemons: {
+        id?: string;
+        pokemonDexId: number;
+        pokemonName: string;
+        pokemonSprite: string | null;
+        isBase: boolean;
+    }[];
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+};
+
 @Injectable()
 export class BackupService {
     constructor(
@@ -252,15 +270,13 @@ export class BackupService {
                 order;
 
             const pokemons = Array.isArray(orderPayload.pokemons)
-                ? orderPayload.pokemons.map((pokemon) => {
-                      const { order: pokemonOrder, ...pokemonPayload } =
-                          pokemon;
-
-                      return {
-                          ...pokemonPayload,
-                          abilityName: pokemonPayload.abilityName || null,
-                      };
-                  })
+                ? orderPayload.pokemons
+                      .map((pokemon) =>
+                          this.normalizeOrderPokemonPayload(pokemon),
+                      )
+                      .filter(
+                          (pokemon) => pokemon.pokemonId && pokemon.pokemonName,
+                      )
                 : [];
 
             const savedOrder = await this.ordersRepository.save(
@@ -278,6 +294,41 @@ export class BackupService {
         }
 
         return stats;
+    }
+
+    private normalizeOrderPokemonPayload(pokemon: Record<string, unknown>) {
+        const { order: pokemonOrder, ...pokemonPayload } = pokemon;
+
+        return {
+            ...pokemonPayload,
+            pokemonId:
+                this.getBackupNumber(
+                    pokemon.pokemonId || pokemon.pokemonDexId,
+                ) || 0,
+            pokemonName:
+                this.getBackupString(pokemon.pokemonName || pokemon.name) ||
+                'Unknown',
+            sprite: this.getBackupString(
+                pokemon.sprite || pokemon.pokemonSprite,
+            ),
+            breedPokemonId: this.getBackupNumber(
+                pokemon.breedPokemonId || pokemon.breedBaseDexId,
+            ),
+            breedPokemonName: this.getBackupString(
+                pokemon.breedPokemonName || pokemon.breedBaseName,
+            ),
+            nature: this.getBackupString(pokemon.nature) || 'Não definida',
+            abilityName: this.getBackupString(pokemon.abilityName),
+            abilityIsHa: Boolean(pokemon.abilityIsHa),
+            regionalForm: this.getBackupString(pokemon.regionalForm),
+            regionalFormLabel: this.getBackupString(pokemon.regionalFormLabel),
+            regionalFormDisplayName: this.getBackupString(
+                pokemon.regionalFormDisplayName,
+            ),
+            value: this.getBackupNumber(pokemon.value) || 0,
+            breedable: Boolean(pokemon.breedable),
+            status: this.getBackupString(pokemon.status) || 'PENDING',
+        };
     }
 
     private async importTransactions(
@@ -478,19 +529,24 @@ export class BackupService {
                 continue;
             }
 
-            const pokemons = Array.isArray(ownedHa.pokemons)
-                ? ownedHa.pokemons.map((pokemon) => {
-                      const { ownedHa: pokemonOwnedHa, ...pokemonPayload } =
-                          pokemon;
+            const normalizedOwnedHa = this.normalizeOwnedHaPayload(ownedHa);
 
-                      return pokemonPayload;
-                  })
-                : [];
+            if (
+                !normalizedOwnedHa.abilityName ||
+                normalizedOwnedHa.breedableValue === null ||
+                normalizedOwnedHa.castratedValue === null ||
+                normalizedOwnedHa.pokemons.length === 0
+            ) {
+                stats.invalid++;
+                continue;
+            }
 
             await this.ownedHasRepository.save(
                 this.ownedHasRepository.create({
-                    ...ownedHa,
-                    pokemons,
+                    ...normalizedOwnedHa,
+                    abilityName: normalizedOwnedHa.abilityName,
+                    breedableValue: normalizedOwnedHa.breedableValue,
+                    castratedValue: normalizedOwnedHa.castratedValue,
                 }),
             );
 
@@ -498,6 +554,87 @@ export class BackupService {
         }
 
         return stats;
+    }
+
+    private normalizeOwnedHaPayload(
+        ownedHa: Record<string, unknown>,
+    ): NormalizedOwnedHaBackup {
+        const basePokemonId = this.getBackupNumber(
+            ownedHa.pokemonId || ownedHa.pokemonDexId,
+        );
+
+        const pokemonsSource = Array.isArray(ownedHa.pokemons)
+            ? ownedHa.pokemons
+            : Array.isArray(ownedHa.evolutionLine)
+              ? ownedHa.evolutionLine
+              : [];
+
+        const pokemons = pokemonsSource
+            .map((pokemon) =>
+                this.normalizeOwnedHaPokemonPayload(pokemon, basePokemonId),
+            )
+            .filter((pokemon) => pokemon !== null);
+
+        if (pokemons.length === 0 && basePokemonId) {
+            const pokemonName = this.getBackupString(
+                ownedHa.pokemonName || ownedHa.name,
+            );
+
+            if (pokemonName) {
+                pokemons.push({
+                    pokemonDexId: basePokemonId,
+                    pokemonName,
+                    pokemonSprite: this.getBackupString(
+                        ownedHa.pokemonSprite || ownedHa.sprite,
+                    ),
+                    isBase: true,
+                });
+            }
+        }
+
+        return {
+            id: this.getBackupString(ownedHa.id) || undefined,
+            abilityName: this.getBackupString(ownedHa.abilityName),
+            nature: this.getBackupString(ownedHa.nature),
+            breedableValue: this.getBackupNumber(
+                ownedHa.breedableValue || ownedHa.breedablePrice,
+            ),
+            castratedValue: this.getBackupNumber(
+                ownedHa.castratedValue || ownedHa.castratedPrice,
+            ),
+            notes: this.getBackupString(ownedHa.notes || ownedHa.observations),
+            pokemons,
+            createdAt: this.getBackupString(ownedHa.createdAt) || undefined,
+            updatedAt: this.getBackupString(ownedHa.updatedAt) || undefined,
+        };
+    }
+
+    private normalizeOwnedHaPokemonPayload(
+        pokemon: Record<string, unknown>,
+        basePokemonId: number | null,
+    ) {
+        const pokemonDexId = this.getBackupNumber(
+            pokemon.pokemonDexId || pokemon.pokemonId || pokemon.dexId,
+        );
+        const pokemonName = this.getBackupString(
+            pokemon.pokemonName || pokemon.name,
+        );
+
+        if (!pokemonDexId || !pokemonName) {
+            return null;
+        }
+
+        return {
+            id: this.getBackupString(pokemon.id) || undefined,
+            pokemonDexId,
+            pokemonName,
+            pokemonSprite: this.getBackupString(
+                pokemon.pokemonSprite || pokemon.sprite,
+            ),
+            isBase: basePokemonId
+                ? pokemonDexId === basePokemonId
+                : Boolean(pokemon.isBase),
+        };
     }
 
     private async importSettings(

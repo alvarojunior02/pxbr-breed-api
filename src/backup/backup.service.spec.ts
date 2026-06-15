@@ -427,7 +427,18 @@ describe('BackupService', () => {
                     id: 'order-pokemon-id',
                     pokemonId: 636,
                     pokemonName: 'Larvesta',
+                    sprite: null,
+                    breedPokemonId: null,
+                    breedPokemonName: null,
+                    nature: 'Não definida',
                     abilityName: null,
+                    abilityIsHa: false,
+                    regionalForm: null,
+                    regionalFormLabel: null,
+                    regionalFormDisplayName: null,
+                    value: 0,
+                    breedable: false,
+                    status: 'PENDING',
                 },
             ],
         });
@@ -464,13 +475,18 @@ describe('BackupService', () => {
             nature: 'Timid',
             breedableValue: 14000000,
             castratedValue: 3500000,
+            notes: null,
             pokemons: [
                 {
                     id: 'owned-ha-pokemon-id',
                     pokemonDexId: 636,
                     pokemonName: 'Larvesta',
+                    pokemonSprite: null,
+                    isBase: false,
                 },
             ],
+            createdAt: undefined,
+            updatedAt: undefined,
         });
 
         expect(settingsRepositoryMock.create).toHaveBeenCalledWith({
