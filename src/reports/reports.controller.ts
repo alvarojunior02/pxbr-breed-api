@@ -70,4 +70,13 @@ export class ReportsController {
     getOrdersByStatus(@Query() query: FindReportsQueryDto) {
         return this.reportsService.getOrdersByStatus(query);
     }
+
+    @Get('orders-by-day')
+    @ApiOperation({ summary: 'Get daily orders report' })
+    @ApiOkResponse({
+        description: 'Returns orders and Pokémon quantities grouped by day.',
+    })
+    getOrdersByDay(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getOrdersByDay(query);
+    }
 }

@@ -249,10 +249,13 @@ export class ReportsService {
     async getOrdersByStatus(query: FindReportsQueryDto = {}) {
         const orderPokemons = await this.getOrderPokemonsByPeriod(query);
 
-        const groupedStatuses = new Map<string, {
-            status: string;
-            quantity: number;
-        }>();
+        const groupedStatuses = new Map<
+            string,
+            {
+                status: string;
+                quantity: number;
+            }
+        >();
 
         for (const pokemon of orderPokemons) {
             const status = pokemon.status || 'Sem status';
@@ -268,7 +271,40 @@ export class ReportsService {
         }
 
         return Array.from(groupedStatuses.values()).sort(
-            (a, b) => b.quantity - a.quantity || a.status.localeCompare(b.status),
+            (a, b) =>
+                b.quantity - a.quantity || a.status.localeCompare(b.status),
+        );
+    }
+
+    async getOrdersByDay(query: FindReportsQueryDto = {}) {
+        const orders = await this.getOrdersByPeriod(query);
+
+        const groupedDays = new Map<
+            string,
+            {
+                date: string;
+                orders: number;
+                pokemons: number;
+            }
+        >();
+
+        for (const order of orders) {
+            const date = this.formatDateKey(order.createdAt);
+
+            const current = groupedDays.get(date) || {
+                date,
+                orders: 0,
+                pokemons: 0,
+            };
+
+            current.orders += 1;
+            current.pokemons += order.pokemons?.length || 0;
+
+            groupedDays.set(date, current);
+        }
+
+        return Array.from(groupedDays.values()).sort((a, b) =>
+            a.date.localeCompare(b.date),
         );
     }
 
@@ -276,6 +312,7 @@ export class ReportsService {
         const orders = await this.ordersRepository.find({
             relations: {
                 player: true,
+                pokemons: true,
             },
         });
 

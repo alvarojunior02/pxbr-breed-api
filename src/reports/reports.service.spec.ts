@@ -330,4 +330,48 @@ describe('ReportsService', () => {
             },
         ]);
     });
+
+    it('should get daily orders report', async () => {
+        ordersRepositoryMock.find.mockResolvedValue([
+            {
+                id: 'order-1',
+                createdAt: new Date('2026-06-15T10:00:00.000Z'),
+                pokemons: [
+                    {
+                        id: 'pokemon-1',
+                    },
+                    {
+                        id: 'pokemon-2',
+                    },
+                ],
+            },
+            {
+                id: 'order-2',
+                createdAt: new Date('2026-06-15T18:00:00.000Z'),
+                pokemons: [
+                    {
+                        id: 'pokemon-3',
+                    },
+                ],
+            },
+            {
+                id: 'order-3',
+                createdAt: new Date('2026-06-16T10:00:00.000Z'),
+                pokemons: [],
+            },
+        ]);
+
+        await expect(service.getOrdersByDay()).resolves.toEqual([
+            {
+                date: '2026-06-15',
+                orders: 2,
+                pokemons: 3,
+            },
+            {
+                date: '2026-06-16',
+                orders: 1,
+                pokemons: 0,
+            },
+        ]);
+    });
 });
