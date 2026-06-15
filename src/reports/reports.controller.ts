@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiOkResponse,
@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ReportsService } from './reports.service';
+import { FindReportsQueryDto } from './dto/find-reports-query.dto';
 
 @ApiTags('Reports')
 @ApiBearerAuth()
@@ -20,35 +21,35 @@ export class ReportsController {
     @Get('top-selling-pokemons')
     @ApiOperation({ summary: 'Get top selling Pokémons report' })
     @ApiOkResponse({ description: 'Returns top selling Pokémons.' })
-    getTopSellingPokemons() {
-        return this.reportsService.getTopSellingPokemons();
+    getTopSellingPokemons(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getTopSellingPokemons(query);
     }
 
     @Get('top-selling-has')
     @ApiOperation({ summary: 'Get top selling HAs report' })
     @ApiOkResponse({ description: 'Returns top selling HAs.' })
-    getTopSellingHas() {
-        return this.reportsService.getTopSellingHas();
+    getTopSellingHas(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getTopSellingHas(query);
     }
 
     @Get('top-buying-players')
     @ApiOperation({ summary: 'Get top buying players report' })
     @ApiOkResponse({ description: 'Returns top buying players.' })
-    getTopBuyingPlayers() {
-        return this.reportsService.getTopBuyingPlayers();
+    getTopBuyingPlayers(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getTopBuyingPlayers(query);
     }
 
     @Get('players-debt')
     @ApiOperation({ summary: 'Get players debt report' })
     @ApiOkResponse({ description: 'Returns players with pending debt.' })
-    getPlayersDebt() {
-        return this.reportsService.getPlayersDebt();
+    getPlayersDebt(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getPlayersDebt(query);
     }
 
     @Get('dashboard-summary')
     @ApiOperation({ summary: 'Get dashboard summary report' })
     @ApiOkResponse({ description: 'Returns dashboard summary metrics.' })
-    getDashboardSummary() {
-        return this.reportsService.getDashboardSummary();
+    getDashboardSummary(@Query() query: FindReportsQueryDto) {
+        return this.reportsService.getDashboardSummary(query);
     }
 }

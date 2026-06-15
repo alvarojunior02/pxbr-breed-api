@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { OrderPokemon } from '../orders/entities/order-pokemon.entity';
 import { Order } from '../orders/entities/order.entity';
 import { Player } from '../players/entities/player.entity';
+import { FindReportsQueryDto } from './dto/find-reports-query.dto';
 
 @Injectable()
 export class ReportsService {
@@ -16,8 +17,8 @@ export class ReportsService {
         private readonly playersRepository: Repository<Player>,
     ) {}
 
-    async getTopSellingPokemons() {
-        const orderPokemons = await this.orderPokemonsRepository.find();
+    async getTopSellingPokemons(query: FindReportsQueryDto = {}) {
+        const orderPokemons = await this.getOrderPokemonsByPeriod(query);
 
         const groupedPokemons = new Map<
             string,
@@ -49,8 +50,8 @@ export class ReportsService {
         );
     }
 
-    async getTopSellingHas() {
-        const orderPokemons = await this.orderPokemonsRepository.find();
+    async getTopSellingHas(query: FindReportsQueryDto = {}) {
+        const orderPokemons = await this.getOrderPokemonsByPeriod(query);
 
         const groupedHas = new Map<
             string,
@@ -83,12 +84,8 @@ export class ReportsService {
         );
     }
 
-    async getTopBuyingPlayers() {
-        const orders = await this.ordersRepository.find({
-            relations: {
-                player: true,
-            },
-        });
+    async getTopBuyingPlayers(query: FindReportsQueryDto = {}) {
+        const orders = await this.getOrdersByPeriod(query);
 
         const groupedPlayers = new Map<
             string,
@@ -123,12 +120,8 @@ export class ReportsService {
         );
     }
 
-    async getPlayersDebt() {
-        const orders = await this.ordersRepository.find({
-            relations: {
-                player: true,
-            },
-        });
+    async getPlayersDebt(query: FindReportsQueryDto = {}) {
+        const orders = await this.getOrdersByPeriod(query);
 
         const groupedPlayers = new Map<
             string,
@@ -169,11 +162,11 @@ export class ReportsService {
         );
     }
 
-    async getDashboardSummary() {
+    async getDashboardSummary(query: FindReportsQueryDto = {}) {
         const [players, orders, orderPokemons] = await Promise.all([
             this.playersRepository.find(),
-            this.ordersRepository.find(),
-            this.orderPokemonsRepository.find(),
+            this.getOrdersByPeriod(query),
+            this.getOrderPokemonsByPeriod(query),
         ]);
 
         const totalRevenue = orders.reduce(
@@ -210,5 +203,64 @@ export class ReportsService {
             paidRevenue,
             pendingRevenue,
         };
+    }
+
+    private async getOrdersByPeriod(query: FindReportsQueryDto) {
+        const orders = await this.ordersRepository.find({
+            relations: {
+                player: true,
+            },
+        });
+
+        return orders.filter((order) =>
+            this.isWithinPeriod(order.createdAt, query),
+        );
+    }
+
+    private async getOrderPokemonsByPeriod(query: FindReportsQueryDto) {
+        const orderPokemons = await this.orderPokemonsRepository.find({
+            relations: {
+                order: true,
+            },
+        });
+
+        return orderPokemons.filter((pokemon) =>
+            this.isWithinPeriod(pokemon.order?.createdAt, query),
+        );
+    }
+
+    private isWithinPeriod(
+        date: Date | string | undefined,
+        query: FindReportsQueryDto,
+    ) {
+        if (!query.startDate && !query.endDate) {
+            return true;
+        }
+
+        if (!date) {
+            return false;
+        }
+
+        const currentDate = new Date(date);
+        const startDate = query.startDate ? new Date(query.startDate) : null;
+        const endDate = query.endDate ? this.getEndOfDay(query.endDate) : null;
+
+        if (startDate && currentDate < startDate) {
+            return false;
+        }
+
+        if (endDate && currentDate > endDate) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private getEndOfDay(date: string) {
+        const endDate = new Date(date);
+
+        endDate.setHours(23, 59, 59, 999);
+
+        return endDate;
     }
 }
