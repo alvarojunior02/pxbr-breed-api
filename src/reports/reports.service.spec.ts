@@ -492,4 +492,25 @@ describe('ReportsService', () => {
             orders: 2,
         });
     });
+
+    it('should group HA sales with missing ability name as Sem ability', async () => {
+        orderPokemonsRepositoryMock.find.mockResolvedValue([
+            {
+                abilityName: null,
+                abilityIsHa: true,
+                value: 7000000,
+                order: {
+                    createdAt: new Date('2026-06-15T10:00:00.000Z'),
+                },
+            },
+        ]);
+
+        await expect(service.getTopSellingHas()).resolves.toEqual([
+            {
+                abilityName: 'Sem ability',
+                quantity: 1,
+                totalValue: 7000000,
+            },
+        ]);
+    });
 });

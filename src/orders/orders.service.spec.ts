@@ -339,4 +339,65 @@ describe('OrdersService', () => {
 
         expect(repositoryMock.remove).toHaveBeenCalledWith(order);
     });
+
+    it('should create order with nullable ability name', async () => {
+        const dto = {
+            playerId: 'player-id',
+            subtotal: 7000000,
+            discount: 0,
+            total: 7000000,
+            paidAmount: 0,
+            paid: false,
+            needsFemale: false,
+            observations: null,
+            archived: false,
+            pokemons: [
+                {
+                    pokemonId: 636,
+                    pokemonName: 'Larvesta',
+                    sprite: 'sprite-url',
+                    breedPokemonId: 636,
+                    breedPokemonName: 'Larvesta',
+                    nature: 'Timid',
+                    abilityName: undefined,
+                    abilityIsHa: false,
+                    regionalForm: null,
+                    regionalFormLabel: null,
+                    regionalFormDisplayName: null,
+                    value: 7000000,
+                    breedable: true,
+                    status: 'Pendente',
+                },
+            ],
+        };
+
+        const order = {
+            id: 'order-id',
+            ...dto,
+            pokemons: [
+                {
+                    ...dto.pokemons[0],
+                    abilityName: null,
+                },
+            ],
+        };
+
+        playersServiceMock.findOne.mockResolvedValue({
+            id: 'player-id',
+        });
+        repositoryMock.create.mockReturnValue(order);
+        repositoryMock.save.mockResolvedValue(order);
+
+        await expect(service.create(dto)).resolves.toEqual(order);
+
+        expect(repositoryMock.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                pokemons: [
+                    expect.objectContaining({
+                        abilityName: null,
+                    }),
+                ],
+            }),
+        );
+    });
 });

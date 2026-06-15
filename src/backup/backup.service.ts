@@ -241,7 +241,10 @@ export class BackupService {
                       const { order: pokemonOrder, ...pokemonPayload } =
                           pokemon;
 
-                      return pokemonPayload;
+                      return {
+                          ...pokemonPayload,
+                          abilityName: pokemonPayload.abilityName || null,
+                      };
                   })
                 : [];
 

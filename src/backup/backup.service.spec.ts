@@ -427,6 +427,7 @@ describe('BackupService', () => {
                     id: 'order-pokemon-id',
                     pokemonId: 636,
                     pokemonName: 'Larvesta',
+                    abilityName: null,
                 },
             ],
         });
@@ -599,5 +600,64 @@ describe('BackupService', () => {
         expect(ordersRepositoryMock.save).not.toHaveBeenCalled();
         expect(transactionsRepositoryMock.save).not.toHaveBeenCalled();
         expect(orderStatusHistoryRepositoryMock.save).not.toHaveBeenCalled();
+    });
+
+    it('should normalize missing order pokemon ability name during import', async () => {
+        const dto = {
+            data: {
+                players: [
+                    {
+                        id: 'player-id',
+                        nick: 'EKNight008',
+                    },
+                ],
+                orders: [
+                    {
+                        id: 'order-id',
+                        playerId: 'player-id',
+                        subtotal: 7000000,
+                        discount: 0,
+                        total: 7000000,
+                        paidAmount: 0,
+                        paid: false,
+                        needsFemale: false,
+                        archived: false,
+                        pokemons: [
+                            {
+                                id: 'order-pokemon-id',
+                                pokemonId: 636,
+                                pokemonName: 'Larvesta',
+                                nature: 'Timid',
+                                abilityIsHa: false,
+                                value: 7000000,
+                                breedable: true,
+                                status: 'Pendente',
+                            },
+                        ],
+                    },
+                ],
+            },
+        };
+
+        playersRepositoryMock.findOne.mockResolvedValue(null);
+        ordersRepositoryMock.findOne.mockResolvedValue(null);
+
+        playersRepositoryMock.create.mockImplementation((value) => value);
+        ordersRepositoryMock.create.mockImplementation((value) => value);
+
+        playersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        ordersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+
+        await service.importBackup(dto);
+
+        expect(ordersRepositoryMock.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                pokemons: [
+                    expect.objectContaining({
+                        abilityName: null,
+                    }),
+                ],
+            }),
+        );
     });
 });
