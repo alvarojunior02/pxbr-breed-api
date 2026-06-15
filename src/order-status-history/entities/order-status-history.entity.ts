@@ -21,6 +21,15 @@ export class OrderStatusHistory {
     order: Order;
 
     @Column({ type: 'varchar', nullable: true })
+    orderPokemonId?: string | null;
+
+    @Column({ type: 'integer', nullable: true })
+    pokemonDexId?: number | null;
+
+    @Column({ type: 'varchar', nullable: true })
+    pokemonName?: string | null;
+
+    @Column({ type: 'varchar', nullable: true })
     oldStatus?: string | null;
 
     @Column({ type: 'varchar' })

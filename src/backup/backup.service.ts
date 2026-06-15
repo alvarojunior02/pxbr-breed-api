@@ -402,7 +402,19 @@ export class BackupService {
             const { order, ...historyPayload } = history;
 
             await this.orderStatusHistoryRepository.save(
-                this.orderStatusHistoryRepository.create(historyPayload),
+                this.orderStatusHistoryRepository.create({
+                    ...historyPayload,
+                    orderPokemonId:
+                        this.getBackupString(history.orderPokemonId) ||
+                        this.getBackupString(history.pokemonId),
+                    pokemonDexId: this.getBackupNumber(history.pokemonDexId),
+                    pokemonName: this.getBackupString(history.pokemonName),
+                    oldStatus:
+                        this.getBackupString(history.oldStatus) ||
+                        this.getBackupString(history.previousStatus),
+                    newStatus: this.getBackupString(history.newStatus) || 'PENDING',
+                    notes: this.getBackupString(history.notes),
+                }),
             );
 
             stats.imported++;

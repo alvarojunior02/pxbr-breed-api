@@ -1,7 +1,24 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class CreateOrderStatusHistoryDto {
+    @ApiPropertyOptional({ example: 'order-pokemon-uuid' })
+    @IsOptional()
+    @IsString()
+    orderPokemonId?: string;
+
+    @ApiPropertyOptional({ example: 636 })
+    @IsOptional()
+    @IsInt()
+    @Min(1)
+    pokemonDexId?: number;
+
+    @ApiPropertyOptional({ example: 'Larvesta' })
+    @IsOptional()
+    @IsString()
+    @MaxLength(80)
+    pokemonName?: string;
+
     @ApiPropertyOptional({ example: 'Pendente' })
     @IsOptional()
     @IsString()

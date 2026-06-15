@@ -34,6 +34,9 @@ export class OrderStatusHistoryService {
 
         const history = this.orderStatusHistoryRepository.create({
             orderId,
+            orderPokemonId: createOrderStatusHistoryDto.orderPokemonId || null,
+            pokemonDexId: createOrderStatusHistoryDto.pokemonDexId || null,
+            pokemonName: createOrderStatusHistoryDto.pokemonName || null,
             oldStatus: createOrderStatusHistoryDto.oldStatus || null,
             newStatus: createOrderStatusHistoryDto.newStatus,
             notes: createOrderStatusHistoryDto.notes || null,
