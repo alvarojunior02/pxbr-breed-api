@@ -1,12 +1,13 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { getDatabaseConfig } from "./database/database.config";
-import { UsersModule } from "./users/users.module";
-import { AuthModule } from "./auth/auth.module";
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { getDatabaseConfig } from './database/database.config';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { PlayersModule } from './players/players.module';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         }),
         UsersModule,
         AuthModule,
+        PlayersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
