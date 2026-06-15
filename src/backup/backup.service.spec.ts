@@ -7,6 +7,7 @@ import { OwnedPokemon } from '../owned-pokemons/entities/owned-pokemon.entity';
 import { Player } from '../players/entities/player.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { BackupService } from './backup.service';
+import { Settings } from '../settings/entities/settings.entity';
 
 describe('BackupService', () => {
     let service: BackupService;
@@ -53,6 +54,12 @@ describe('BackupService', () => {
         save: jest.fn(),
     };
 
+    const settingsRepositoryMock = {
+        findOne: jest.fn(),
+        create: jest.fn(),
+        save: jest.fn(),
+    };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -81,12 +88,18 @@ describe('BackupService', () => {
                     provide: getRepositoryToken(OwnedHa),
                     useValue: ownedHasRepositoryMock,
                 },
+                {
+                    provide: getRepositoryToken(Settings),
+                    useValue: settingsRepositoryMock,
+                },
             ],
         }).compile();
 
         service = module.get<BackupService>(BackupService);
 
         jest.clearAllMocks();
+
+        settingsRepositoryMock.findOne.mockResolvedValue(null);
     });
 
     it('should be defined', () => {
@@ -147,6 +160,15 @@ describe('BackupService', () => {
         ownedPokemonsRepositoryMock.find.mockResolvedValue(ownedPokemons);
         ownedHasRepositoryMock.find.mockResolvedValue(ownedHas);
 
+        const systemSettings = {
+            id: 'settings-id',
+            breedableDefaultValue: 14000000,
+            castratedDefaultValue: 3500000,
+            backupVersion: 1,
+        };
+
+        settingsRepositoryMock.findOne.mockResolvedValue(systemSettings);
+
         const result = await service.exportBackup();
 
         expect(result).toMatchObject({
@@ -158,6 +180,9 @@ describe('BackupService', () => {
                 orderStatusHistory,
                 ownedPokemons,
                 ownedHas,
+                ownedHiddenAbilities: ownedHas,
+                settings: systemSettings,
+                systemSettings,
             },
         });
 
@@ -287,6 +312,12 @@ describe('BackupService', () => {
                         ],
                     },
                 ],
+                systemSettings: {
+                    id: 'settings-id',
+                    breedableDefaultValue: 14000000,
+                    castratedDefaultValue: 3500000,
+                    backupVersion: 1,
+                },
             },
         };
 
@@ -296,6 +327,7 @@ describe('BackupService', () => {
         orderStatusHistoryRepositoryMock.findOne.mockResolvedValue(null);
         ownedPokemonsRepositoryMock.findOne.mockResolvedValue(null);
         ownedHasRepositoryMock.findOne.mockResolvedValue(null);
+        settingsRepositoryMock.findOne.mockResolvedValue(null);
 
         playersRepositoryMock.create.mockImplementation((value) => value);
         ordersRepositoryMock.create.mockImplementation((value) => value);
@@ -305,6 +337,7 @@ describe('BackupService', () => {
         );
         ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
         ownedHasRepositoryMock.create.mockImplementation((value) => value);
+        settingsRepositoryMock.create.mockImplementation((value) => value);
 
         playersRepositoryMock.save.mockImplementation((value) =>
             Promise.resolve(value),
@@ -322,6 +355,9 @@ describe('BackupService', () => {
             Promise.resolve(value),
         );
         ownedHasRepositoryMock.save.mockImplementation((value) =>
+            Promise.resolve(value),
+        );
+        settingsRepositoryMock.save.mockImplementation((value) =>
             Promise.resolve(value),
         );
 
@@ -357,6 +393,11 @@ describe('BackupService', () => {
                     invalid: 0,
                 },
                 ownedHas: {
+                    imported: 1,
+                    skipped: 0,
+                    invalid: 0,
+                },
+                settings: {
                     imported: 1,
                     skipped: 0,
                     invalid: 0,
@@ -424,6 +465,13 @@ describe('BackupService', () => {
                     pokemonName: 'Larvesta',
                 },
             ],
+        });
+
+        expect(settingsRepositoryMock.create).toHaveBeenCalledWith({
+            id: 'settings-id',
+            breedableDefaultValue: 14000000,
+            castratedDefaultValue: 3500000,
+            backupVersion: 1,
         });
     });
 

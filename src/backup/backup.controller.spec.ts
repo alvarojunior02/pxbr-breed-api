@@ -41,6 +41,9 @@ describe('BackupController', () => {
                 orderStatusHistory: [],
                 ownedPokemons: [],
                 ownedHas: [],
+                ownedHiddenAbilities: [],
+                settings: null,
+                systemSettings: null,
             },
         };
 
@@ -76,26 +79,37 @@ describe('BackupController', () => {
                 players: {
                     imported: 1,
                     skipped: 0,
+                    invalid: 0,
                 },
                 orders: {
                     imported: 0,
                     skipped: 0,
+                    invalid: 0,
                 },
                 transactions: {
                     imported: 0,
                     skipped: 0,
+                    invalid: 0,
                 },
                 orderStatusHistory: {
                     imported: 0,
                     skipped: 0,
+                    invalid: 0,
                 },
                 ownedPokemons: {
                     imported: 0,
                     skipped: 0,
+                    invalid: 0,
                 },
                 ownedHas: {
                     imported: 0,
                     skipped: 0,
+                    invalid: 0,
+                },
+                settings: {
+                    imported: 0,
+                    skipped: 0,
+                    invalid: 0,
                 },
             },
         };
