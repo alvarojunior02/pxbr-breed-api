@@ -28,6 +28,15 @@ export class OwnedHa {
     @Column({ type: 'text', nullable: true })
     notes?: string | null;
 
+    @Column({ type: 'varchar', nullable: true })
+    regionalForm?: string | null;
+
+    @Column({ type: 'varchar', nullable: true })
+    regionalFormLabel?: string | null;
+
+    @Column({ type: 'varchar', nullable: true })
+    regionalFormDisplayName?: string | null;
+
     @OneToMany(() => OwnedHaPokemon, (pokemon) => pokemon.ownedHa, {
         cascade: true,
         eager: true,

@@ -49,6 +49,10 @@ export class OwnedHasService {
             castratedValue: createOwnedHaDto.castratedValue,
             notes: createOwnedHaDto.notes || null,
             pokemons: this.createOwnedHaPokemons(createOwnedHaDto.pokemons),
+            regionalForm: createOwnedHaDto.regionalForm || null,
+            regionalFormLabel: createOwnedHaDto.regionalFormLabel || null,
+            regionalFormDisplayName:
+                createOwnedHaDto.regionalFormDisplayName || null,
         });
 
         return this.ownedHasRepository.save(ownedHa);
@@ -67,6 +71,18 @@ export class OwnedHasService {
                 updateOwnedHaDto.notes === undefined
                     ? ownedHa.notes
                     : updateOwnedHaDto.notes || null,
+            regionalForm:
+                updateOwnedHaDto.regionalForm === undefined
+                    ? ownedHa.regionalForm
+                    : updateOwnedHaDto.regionalForm || null,
+            regionalFormLabel:
+                updateOwnedHaDto.regionalFormLabel === undefined
+                    ? ownedHa.regionalFormLabel
+                    : updateOwnedHaDto.regionalFormLabel || null,
+            regionalFormDisplayName:
+                updateOwnedHaDto.regionalFormDisplayName === undefined
+                    ? ownedHa.regionalFormDisplayName
+                    : updateOwnedHaDto.regionalFormDisplayName || null,
         });
 
         if (updateOwnedHaDto.pokemons) {

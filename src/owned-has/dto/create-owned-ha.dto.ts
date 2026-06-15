@@ -40,6 +40,24 @@ export class CreateOwnedHaDto {
     @MaxLength(500)
     notes?: string;
 
+    @ApiPropertyOptional({ example: 'alola' })
+    @IsOptional()
+    @IsString()
+    @MaxLength(40)
+    regionalForm?: string | null;
+
+    @ApiPropertyOptional({ example: 'Alola' })
+    @IsOptional()
+    @IsString()
+    @MaxLength(40)
+    regionalFormLabel?: string | null;
+
+    @ApiPropertyOptional({ example: 'Vulpix de Alola' })
+    @IsOptional()
+    @IsString()
+    @MaxLength(80)
+    regionalFormDisplayName?: string | null;
+
     @ApiProperty({
         type: [OwnedHaPokemonDto],
         example: [
