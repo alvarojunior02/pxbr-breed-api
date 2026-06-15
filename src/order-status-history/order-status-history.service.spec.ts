@@ -90,12 +90,17 @@ describe('OrderStatusHistoryService', () => {
         await expect(service.create('order-id', dto)).resolves.toEqual(createdHistory);
 
         expect(ordersServiceMock.findOne).toHaveBeenCalledWith('order-id');
+
         expect(repositoryMock.create).toHaveBeenCalledWith({
             orderId: 'order-id',
+            orderPokemonId: null,
+            pokemonDexId: null,
+            pokemonName: null,
             oldStatus: dto.oldStatus,
             newStatus: dto.newStatus,
             notes: dto.notes,
         });
+
         expect(repositoryMock.save).toHaveBeenCalledWith(createdHistory);
     });
 

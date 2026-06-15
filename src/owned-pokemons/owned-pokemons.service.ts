@@ -46,6 +46,12 @@ export class OwnedPokemonsService {
             pokemonSprite: createOwnedPokemonDto.pokemonSprite || null,
             breedBaseDexId: createOwnedPokemonDto.breedBaseDexId || null,
             breedBaseName: createOwnedPokemonDto.breedBaseName || null,
+            regionalForm: createOwnedPokemonDto.regionalForm || null,
+            regionalFormLabel: createOwnedPokemonDto.regionalFormLabel || null,
+            regionalFormDisplayName:
+                createOwnedPokemonDto.regionalFormDisplayName || null,
+            eggGroups: createOwnedPokemonDto.eggGroups || [],
+            evolutionLine: createOwnedPokemonDto.evolutionLine || [],
             status: createOwnedPokemonDto.status,
             gender: createOwnedPokemonDto.gender,
             nature: createOwnedPokemonDto.nature || null,
@@ -80,6 +86,26 @@ export class OwnedPokemonsService {
                 updateOwnedPokemonDto.notes === undefined
                     ? ownedPokemon.notes
                     : updateOwnedPokemonDto.notes || null,
+            regionalForm:
+                updateOwnedPokemonDto.regionalForm === undefined
+                    ? ownedPokemon.regionalForm
+                    : updateOwnedPokemonDto.regionalForm || null,
+            regionalFormLabel:
+                updateOwnedPokemonDto.regionalFormLabel === undefined
+                    ? ownedPokemon.regionalFormLabel
+                    : updateOwnedPokemonDto.regionalFormLabel || null,
+            regionalFormDisplayName:
+                updateOwnedPokemonDto.regionalFormDisplayName === undefined
+                    ? ownedPokemon.regionalFormDisplayName
+                    : updateOwnedPokemonDto.regionalFormDisplayName || null,
+            eggGroups:
+                updateOwnedPokemonDto.eggGroups === undefined
+                    ? ownedPokemon.eggGroups
+                    : updateOwnedPokemonDto.eggGroups || [],
+            evolutionLine:
+                updateOwnedPokemonDto.evolutionLine === undefined
+                    ? ownedPokemon.evolutionLine
+                    : updateOwnedPokemonDto.evolutionLine || [],
         });
 
         return this.ownedPokemonsRepository.save(ownedPokemon);

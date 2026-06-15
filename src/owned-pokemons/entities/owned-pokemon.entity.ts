@@ -26,6 +26,25 @@ export class OwnedPokemon {
     @Column({ type: 'varchar', nullable: true })
     breedBaseName?: string | null;
 
+    @Column({ type: 'varchar', nullable: true })
+    regionalForm?: string | null;
+
+    @Column({ type: 'varchar', nullable: true })
+    regionalFormLabel?: string | null;
+
+    @Column({ type: 'varchar', nullable: true })
+    regionalFormDisplayName?: string | null;
+
+    @Column({ type: 'simple-json', nullable: true })
+    eggGroups?: string[] | null;
+
+    @Column({ type: 'simple-json', nullable: true })
+    evolutionLine?: Array<{
+        pokemonId: number;
+        pokemonName: string;
+        sprite?: string | null;
+    }> | null;
+
     @Column()
     status: string;
 

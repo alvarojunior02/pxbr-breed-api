@@ -138,7 +138,23 @@ describe('OwnedPokemonsService', () => {
 
         await expect(service.create(dto)).resolves.toEqual(ownedPokemon);
 
-        expect(repositoryMock.create).toHaveBeenCalledWith(dto);
+        expect(repositoryMock.create).toHaveBeenCalledWith({
+            pokemonDexId: dto.pokemonDexId,
+            pokemonName: dto.pokemonName,
+            pokemonSprite: dto.pokemonSprite,
+            breedBaseDexId: dto.breedBaseDexId,
+            breedBaseName: dto.breedBaseName,
+            regionalForm: null,
+            regionalFormLabel: null,
+            regionalFormDisplayName: null,
+            eggGroups: [],
+            evolutionLine: [],
+            status: dto.status,
+            gender: dto.gender,
+            nature: dto.nature,
+            notes: dto.notes,
+        });
+
         expect(repositoryMock.save).toHaveBeenCalledWith(ownedPokemon);
     });
 

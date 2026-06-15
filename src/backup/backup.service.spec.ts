@@ -453,7 +453,12 @@ describe('BackupService', () => {
         expect(orderStatusHistoryRepositoryMock.create).toHaveBeenCalledWith({
             id: 'history-id',
             orderId: 'order-id',
+            orderPokemonId: null,
+            pokemonDexId: null,
+            pokemonName: null,
+            oldStatus: null,
             newStatus: 'Em andamento',
+            notes: null,
         });
 
         expect(ownedPokemonsRepositoryMock.create).toHaveBeenCalledWith({
