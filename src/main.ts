@@ -5,28 +5,28 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
+    const configService = app.get(ConfigService);
 
-  app.use(cookieParser());
+    app.use(cookieParser());
 
-  app.enableCors({
-    origin: configService.get<string>('FRONTEND_ORIGIN'),
-    credentials: true,
-  });
+    app.enableCors({
+        origin: configService.get<string>('FRONTEND_ORIGIN'),
+        credentials: true,
+    });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            transform: true,
+        }),
+    );
 
-  const port = configService.get<number>('APP_PORT') || 3001;
+    const port = configService.get<number>('APP_PORT') || 3001;
 
-  await app.listen(port);
+    await app.listen(port);
 }
 
 bootstrap();
