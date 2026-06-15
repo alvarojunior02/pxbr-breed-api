@@ -5,48 +5,53 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule);
 
-    const configService = app.get(ConfigService);
+  const configService = app.get(ConfigService);
 
-    app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api');
 
-    const swaggerConfig = new DocumentBuilder()
-        .setTitle('PXBR Breed API')
-        .setDescription('REST API for PXBR Breed management system.')
-        .setVersion('1.0.0')
-        .addBearerAuth()
-        .addCookieAuth('refreshToken')
-        .build();
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('PXBR Breed API')
+    .setDescription('REST API for PXBR Breed management system.')
+    .setVersion('1.0.0')
+    .addBearerAuth()
+    .addCookieAuth('refreshToken')
+    .build();
 
-    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
-    SwaggerModule.setup('api/docs', app, swaggerDocument);
+  SwaggerModule.setup('api/docs', app, swaggerDocument);
 
-    app.use(helmet());
+  app.use(helmet());
 
-    app.use(cookieParser());
+  app.use(cookieParser());
 
-    app.enableCors({
-        origin: configService.get<string>('FRONTEND_ORIGIN'),
-        credentials: true,
-        methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-    });
+  app.enableCors({
+    origin: configService.get<string>('FRONTEND_ORIGIN'),
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            transform: true,
-        }),
-    );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
-    const port = configService.get<number>('APP_PORT') || 3001;
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
-    await app.listen(port);
+  const port = configService.get<number>('APP_PORT') || 3001;
+
+  await app.listen(port);
 }
 
 bootstrap();
