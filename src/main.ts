@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -11,6 +12,18 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
 
     app.setGlobalPrefix('api');
+
+    const swaggerConfig = new DocumentBuilder()
+        .setTitle('PXBR Breed API')
+        .setDescription('REST API for PXBR Breed management system.')
+        .setVersion('1.0.0')
+        .addBearerAuth()
+        .addCookieAuth('refreshToken')
+        .build();
+
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+
+    SwaggerModule.setup('api/docs', app, swaggerDocument);
 
     app.use(helmet());
 
