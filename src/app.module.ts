@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PlayersModule } from './players/players.module';
 import { OrdersModule } from './orders/orders.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { OrdersModule } from './orders/orders.module';
         AuthModule,
         PlayersModule,
         OrdersModule,
+        TransactionsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
