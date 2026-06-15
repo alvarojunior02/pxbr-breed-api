@@ -14,6 +14,7 @@ import { OrderStatusHistoryModule } from './order-status-history/order-status-hi
 import { OwnedPokemonsModule } from './owned-pokemons/owned-pokemons.module';
 import { OwnedHasModule } from './owned-has/owned-has.module';
 import { BackupModule } from './backup/backup.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
     imports: [
@@ -39,6 +40,7 @@ import { BackupModule } from './backup/backup.module';
         OwnedPokemonsModule,
         OwnedHasModule,
         BackupModule,
+        SettingsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
