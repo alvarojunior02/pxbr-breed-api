@@ -24,8 +24,8 @@ export class OrderPokemon {
     @Column()
     nature: string;
 
-    @Column()
-    abilityName: string;
+    @Column({ type: 'varchar', nullable: true })
+    abilityName?: string | null;
 
     @Column({ default: false })
     abilityIsHa: boolean;

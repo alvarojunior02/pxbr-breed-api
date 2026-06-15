@@ -111,7 +111,7 @@ export class OrdersService {
                 breedPokemonId: pokemon.breedPokemonId || null,
                 breedPokemonName: pokemon.breedPokemonName || null,
                 nature: pokemon.nature,
-                abilityName: pokemon.abilityName,
+                abilityName: pokemon.abilityName || null,
                 abilityIsHa: pokemon.abilityIsHa,
                 regionalForm: pokemon.regionalForm || null,
                 regionalFormLabel: pokemon.regionalFormLabel || null,

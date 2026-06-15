@@ -74,8 +74,10 @@ export class ReportsService {
                 continue;
             }
 
-            const current = groupedHas.get(pokemon.abilityName) || {
-                abilityName: pokemon.abilityName,
+            const abilityName = pokemon.abilityName || 'Sem ability';
+
+            const current = groupedHas.get(abilityName) || {
+                abilityName,
                 quantity: 0,
                 totalValue: 0,
             };
@@ -83,7 +85,7 @@ export class ReportsService {
             current.quantity += 1;
             current.totalValue += pokemon.value || 0;
 
-            groupedHas.set(pokemon.abilityName, current);
+            groupedHas.set(abilityName, current);
         }
 
         return this.applyLimit(

@@ -41,10 +41,11 @@ export class OrderPokemonDto {
     @MaxLength(40)
     nature: string;
 
-    @ApiProperty({ example: 'Drought' })
+    @ApiPropertyOptional({ example: 'Flame Body' })
+    @IsOptional()
     @IsString()
     @MaxLength(80)
-    abilityName: string;
+    abilityName?: string;
 
     @ApiProperty({ example: true })
     @IsBoolean()
