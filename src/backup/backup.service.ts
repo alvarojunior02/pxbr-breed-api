@@ -8,6 +8,7 @@ import { OwnedPokemon } from '../owned-pokemons/entities/owned-pokemon.entity';
 import { Player } from '../players/entities/player.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { ImportBackupDto } from './dto/import-backup.dto';
+import { Settings } from '../settings/entities/settings.entity';
 
 type ImportStats = {
     imported: number;
@@ -30,6 +31,8 @@ export class BackupService {
         private readonly ownedPokemonsRepository: Repository<OwnedPokemon>,
         @InjectRepository(OwnedHa)
         private readonly ownedHasRepository: Repository<OwnedHa>,
+        @InjectRepository(Settings)
+        private readonly settingsRepository: Repository<Settings>,
     ) {}
 
     async exportBackup() {
@@ -40,6 +43,7 @@ export class BackupService {
             orderStatusHistory,
             ownedPokemons,
             ownedHas,
+            systemSettings,
         ] = await Promise.all([
             this.playersRepository.find({
                 order: {
@@ -71,6 +75,12 @@ export class BackupService {
                     createdAt: 'DESC',
                 },
             }),
+            this.settingsRepository.findOne({
+                where: {},
+                order: {
+                    createdAt: 'ASC',
+                },
+            }),
         ]);
 
         return {
@@ -83,6 +93,9 @@ export class BackupService {
                 orderStatusHistory,
                 ownedPokemons,
                 ownedHas,
+                ownedHiddenAbilities: ownedHas,
+                settings: systemSettings,
+                systemSettings,
             },
         };
     }
@@ -115,6 +128,7 @@ export class BackupService {
             data.ownedPokemons,
         );
         const ownedHas = await this.importOwnedHas(data.ownedHas);
+        const settings = await this.importSettings(data.settings);
 
         return {
             success: true,
@@ -127,6 +141,7 @@ export class BackupService {
                 orderStatusHistory,
                 ownedPokemons,
                 ownedHas,
+                settings,
             },
         };
     }
@@ -143,8 +158,25 @@ export class BackupService {
             transactions: data.transactions || [],
             orderStatusHistory: data.orderStatusHistory || [],
             ownedPokemons: data.ownedPokemons || [],
-            ownedHas: data.ownedHas || [],
+            ownedHas: data.ownedHas || data.ownedHiddenAbilities || [],
+            settings: this.normalizeSettingsPayload(data),
         };
+    }
+
+    private normalizeSettingsPayload(data: ImportBackupDto) {
+        if (data.settings) {
+            return Array.isArray(data.settings)
+                ? data.settings
+                : [data.settings];
+        }
+
+        if (data.systemSettings) {
+            return Array.isArray(data.systemSettings)
+                ? data.systemSettings
+                : [data.systemSettings];
+        }
+
+        return [];
     }
 
     private async importPlayers(
@@ -359,6 +391,27 @@ export class BackupService {
                     ...ownedHa,
                     pokemons,
                 }),
+            );
+
+            stats.imported++;
+        }
+
+        return stats;
+    }
+
+    private async importSettings(
+        settings: Record<string, unknown>[],
+    ): Promise<ImportStats> {
+        const stats = this.createStats();
+
+        for (const setting of settings) {
+            if (await this.existsById(this.settingsRepository, setting.id)) {
+                stats.skipped++;
+                continue;
+            }
+
+            await this.settingsRepository.save(
+                this.settingsRepository.create(setting),
             );
 
             stats.imported++;

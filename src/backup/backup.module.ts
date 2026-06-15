@@ -8,6 +8,7 @@ import { Player } from '../players/entities/player.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { BackupController } from './backup.controller';
 import { BackupService } from './backup.service';
+import { Settings } from '../settings/entities/settings.entity';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { BackupService } from './backup.service';
             OrderStatusHistory,
             OwnedPokemon,
             OwnedHa,
+            Settings,
         ]),
     ],
     controllers: [BackupController],

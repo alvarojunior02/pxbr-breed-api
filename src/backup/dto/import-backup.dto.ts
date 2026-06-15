@@ -31,4 +31,17 @@ export class ImportBackupDto {
     @IsOptional()
     @IsArray()
     ownedHas?: Record<string, unknown>[];
+
+    @ApiPropertyOptional({ type: Array })
+    @IsOptional()
+    @IsArray()
+    ownedHiddenAbilities?: Record<string, unknown>[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    settings?: Record<string, unknown> | Record<string, unknown>[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    systemSettings?: Record<string, unknown> | Record<string, unknown>[];
 }
