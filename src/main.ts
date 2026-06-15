@@ -31,8 +31,14 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  const allowedOrigins = [
+    configService.get<string>('FRONTEND_URL'),
+    'http://127.0.0.1:5500',
+    'http://localhost:5500',
+].filter(Boolean);
+
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_ORIGIN'),
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
