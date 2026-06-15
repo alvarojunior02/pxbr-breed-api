@@ -1,4 +1,4 @@
-import {
+﻿import {
     BeforeInsert,
     BeforeUpdate,
     Column,
@@ -6,7 +6,9 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
+    OneToMany,
 } from 'typeorm';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity('players')
 export class Player {
@@ -27,6 +29,9 @@ export class Player {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @OneToMany(() => Order, (order) => order.player)
+    orders: Order[];
 
     @BeforeInsert()
     @BeforeUpdate()

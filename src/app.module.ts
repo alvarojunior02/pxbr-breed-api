@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PlayersModule } from './players/players.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { PlayersModule } from './players/players.module';
         UsersModule,
         AuthModule,
         PlayersModule,
+        OrdersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
