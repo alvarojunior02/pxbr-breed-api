@@ -4,15 +4,57 @@ services:
     container_name: pxbr-breed-postgres
     restart: unless-stopped
     environment:
-        POSTGRES_DB: pxbr_breed
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        TZ: America/Cuiaba
-        PGTZ: America/Cuiaba
+      POSTGRES_DB: pxbr_breed
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/Cuiaba
+      PGTZ: America/Cuiaba
     ports:
       - '5432:5432'
     volumes:
       - pxbr_breed_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d pxbr_breed']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pxbr-breed-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: development
+      PORT: 3001
+      TZ: America/Cuiaba
+
+      FRONTEND_URL: http://127.0.0.1:5500
+      CORS_ORIGIN: http://127.0.0.1:5500,http://localhost:5500
+
+      DATABASE_TYPE: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: pxbr_breed
+      DATABASE_SSL: 'false'
+      DATABASE_TIMEZONE: America/Cuiaba
+      DATABASE_MIGRATIONS_RUN: 'false'
+
+      JWT_ACCESS_SECRET: local-docker-access-secret
+      JWT_REFRESH_SECRET: local-docker-refresh-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+
+      ADMIN_EMAIL: admin@pxbr.local
+      ADMIN_PASSWORD: admin123
+    ports:
+      - '3001:3001'
 
 volumes:
   pxbr_breed_postgres_data:
