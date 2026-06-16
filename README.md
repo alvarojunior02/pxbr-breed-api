@@ -1,98 +1,396 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# PXBR Breed API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST do PXBR Breed, desenvolvida com NestJS, TypeORM, PostgreSQL, JWT, Swagger e Jest.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Esta API centraliza a persistência e as regras de backend para o sistema PXBR Breed, incluindo autenticação, clientes, encomendas, Pokemons das encomendas, histórico de status, transações, Pokemons próprios, Hidden Abilities, configurações, relatórios e backup.
 
-## Description
+## Status
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Projeto em desenvolvimento ativo.
 
-## Project setup
+Arquitetura atual:
 
-```bash
-$ npm install
-```
+Produção:
+Frontend Vercel -> API Render -> PostgreSQL Supabase
 
-## Compile and run the project
+Desenvolvimento local:
+Frontend Live Server -> API Docker/local -> PostgreSQL Docker
 
-```bash
-# development
-$ npm run start
+## Links
 
-# watch mode
-$ npm run start:dev
+### Produção:
+Health check produção:
+https://pxbr-breed-api.onrender.com/api/health
 
-# production mode
-$ npm run start:prod
-```
+Swagger produção:
+https://pxbr-breed-api.onrender.com/api/docs
 
-## Run tests
+### Local:
+Health check local:
+http://127.0.0.1:3001/api/health
 
-```bash
-# unit tests
-$ npm run test
+Swagger local:
+http://127.0.0.1:3001/api/docs
 
-# e2e tests
-$ npm run test:e2e
+## Tecnologias
+- NestJS
+- TypeScript
+- TypeORM
+- PostgreSQL
+- Docker
+- JWT
+- Refresh token via cookie
+- Swagger
+- Jest
+- Helmet
+- CORS
+- Rate limiting
+- Class Validator
+- Class Transformer
 
-# test coverage
-$ npm run test:cov
-```
+## Módulos
+src/
+  auth/
+  backup/
+  common/
+  database/
+  order-status-history/
+  orders/
+  owned-has/
+  owned-pokemons/
+  players/
+  reports/
+  settings/
+  transactions/
+  users/
 
-## Deployment
+## Principais Recursos
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Auth
+- Login com e-mail e senha
+- Access token JWT
+- Refresh token em cookie HTTP-only
+- Rotação de refresh token
+- Logout
+- Rota /auth/me
+- Seed automático de usuário admin via variáveis de ambiente
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Players
+- CRUD de clientes
+- Busca por nick
+- Validação de nick duplicado
+- Integração com encomendas e transações
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+### Orders
+- CRUD de encomendas
+- Relacionamento com player
+- Múltiplos Pokemons por encomenda
+- Valores: subtotal, desconto, total, pago e pendente
+- Arquivamento lógico via campo archived
+- Status por Pokemon
+- Forma regional
+- Nature
+- Ability
+- Breed base
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Order Status History
+- Histórico de avanço de status
+- Registro de status anterior e novo status
+- Pokemon relacionado
+- Encomenda relacionada
+- Observações opcionais
 
-## Resources
+### Transactions
+- Transações vinculadas a player e order
+- Registro de pagamentos
+- Integração com relatórios e dashboard
 
-Check out a few resources that may come in handy when working with NestJS:
+### Owned Pokemons
+- Cadastro de Pokemons próprios
+- Status de breed
+- Gênero
+- Nature
+- Forma regional
+- Egg Groups
+- Linha evolutiva
+- Observações
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Owned Hidden Abilities
+- Cadastro de HAs próprias
+- Nature opcional
+- Valores castrado e breedável
+- Linha evolutiva
+- Forma regional
+- Observações
 
-## Support
+### Backup
+- Exportação JSON
+- Importação JSON
+- Normalização de dados legados
+- =Importação incremental
+- Validação de dependências
+- Suporte a dados antigos vindos do frontend/localStorage
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Settings
+- Configurações do sistema
+- Persistência centralizada
 
-## Stay in touch
+### Reports
+- Pokemons mais vendidos
+- HAs mais vendidas
+- Players que mais compraram
+-Players que mais devem
+- Resumo da dashboard
+- Receita por dia
+- Encomendas por dia
+- Encomendas por status
+- Vendas HA vs regular
+- Pagamentos por player
+- Resumo financeiro
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Endpoints Principais
 
-## License
+Todas as rotas usam prefixo global:
+/api
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Health
+GET /api/health
+
+### Auth
+POST /api/auth/login
+POST /api/auth/refresh
+POST /api/auth/logout
+GET  /api/auth/me
+
+### Players
+GET    /api/players
+GET    /api/players/:id
+POST   /api/players
+PATCH  /api/players/:id
+DELETE /api/players/:id
+
+### Orders
+GET    /api/orders
+GET    /api/orders/:id
+POST   /api/orders
+PATCH  /api/orders/:id
+DELETE /api/orders/:id
+
+Filtros iniciais suportados em GET /api/orders:
+playerId
+status
+archived
+paymentStatus
+search
+
+### Transactions
+GET   /api/transactions
+GET   /api/transactions/:id
+POST  /api/transactions
+PATCH /api/transactions/:id
+
+### Order Status History
+GET  /api/order-status-history
+GET  /api/order-status-history/order/:orderId
+POST /api/order-status-history
+
+### Owned Pokemons
+GET    /api/owned-pokemons
+GET    /api/owned-pokemons/:id
+POST   /api/owned-pokemons
+PATCH  /api/owned-pokemons/:id
+DELETE /api/owned-pokemons/:id
+
+### Owned Hidden Abilities
+GET    /api/owned-has
+GET    /api/owned-has/:id
+POST   /api/owned-has
+PATCH  /api/owned-has/:id
+DELETE /api/owned-has/:id
+
+### Backup
+GET  /api/backup/export
+POST /api/backup/import
+
+### Settings
+GET   /api/settings
+PATCH /api/settings
+
+### Reports
+GET /api/reports/top-selling-pokemons
+GET /api/reports/top-selling-has
+GET /api/reports/top-buying-players
+GET /api/reports/players-debt
+GET /api/reports/dashboard-summary
+GET /api/reports/revenue-by-day
+GET /api/reports/orders-by-status
+GET /api/reports/orders-by-day
+GET /api/reports/ha-vs-regular-sales
+GET /api/reports/payments-by-player
+GET /api/reports/revenue-summary
+
+## Autenticação
+
+Após login, a API retorna:
+{
+  "user": {
+    "id": "user-id",
+    "email": "admin@pxbr.local",
+    "role": "ADMIN"
+  },
+  "accessToken": "jwt-access-token"
+}
+
+O frontend envia o access token no header:
+Authorization: Bearer <token>
+
+O refresh token é salvo em cookie HTTP-only.
+
+## Setup Local com Docker
+
+Subir API e Postgres:
+docker compose up -d --build
+
+Ver containers:
+docker ps
+
+Health check:
+http://127.0.0.1:3001/api/health
+
+Swagger:
+http://127.0.0.1:3001/api/docs
+
+Logs da API:
+docker logs -f pxbr-breed-api
+
+Parar containers sem remover:
+docker compose stop
+
+Subir containers existentes:
+docker compose start
+
+Rebuildar após mudanças no backend:
+docker compose up -d --build
+
+
+## Setup Local sem Docker
+
+Instalar dependências:
+npm install
+
+Rodar migrations:
+npm run migration:run
+
+Iniciar em modo desenvolvimento:
+npm run start:dev
+
+## Variáveis de Ambiente
+
+Crie um arquivo .env baseado em .env.example.
+
+## Banco de Dados
+
+Banco Local:
+PostgreSQL em Docker
+Database: pxbr_breed
+User: postgres
+Password: postgres
+Port: 5432
+
+Banco de Produção:
+Supabase PostgreSQL
+
+O projeto usa migrations TypeORM. Em produção, não use synchronize=true.
+
+### Migrations
+
+Gerar migration:
+npm run migration:generate -- ./src/database/migrations/MigrationName
+
+Criar migration vazia:
+npm run migration:create -- ./src/database/migrations/MigrationName
+
+Rodar migrations:
+npm run migration:run
+
+Ver status:
+npm run migration:show
+
+Reverter última migration:
+npm run migration:revert
+
+### Scripts
+
+Build:
+npm run build
+
+Desenvolvimento:
+npm run start:dev
+
+Produção
+npm run start:prod
+
+Render:
+npm run start:render
+
+Testes:
+npm run test
+
+Testes com coverage:
+npm run test:cov
+
+Lint:
+npm run lint
+
+Format:
+npm run format
+
+## Testes
+
+O projeto possui testes unitários com Jest para controllers e services dos módulos principais.
+
+Rodar todos:
+npm run test
+
+## Swagger
+
+Documentação interativa:
+/api/docs
+
+Local:
+http://127.0.0.1:3001/api/docs
+
+Produção:
+https://pxbr-breed-api.onrender.com/api/docs
+
+## Deploy
+
+A API está publicada no Render.
+
+Configuração recomendada:
+
+Build Command:
+npm install && npm run build
+
+Start Command:
+npm run start:render
+
+Banco de produção:
+Supabase PostgreSQL
+
+Frontend permitido no CORS:
+https://pxbr-breed.vercel.app
+
+### Observações de Produção
+
+- Use DATABASE_SSL=true com Supabase.
+- Use secrets fortes para JWT.
+- Não versione .env.
+- Não versione arquivos .sqlite.
+- Use migrations para qualquer alteração estrutural no banco.
+- O Render Free pode demorar alguns segundos no primeiro acesso após inatividade.
+
+## Autor
+
+Desenvolvido por Alvaro Carneiro Junior.
+LinkedIn: https://www.linkedin.com/in/alvaro-carneiro-junior-9a376038a/
