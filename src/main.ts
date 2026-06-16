@@ -33,17 +33,32 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  const allowedOrigins = [
+  const corsOrigins = [
     configService.get<string>('FRONTEND_URL'),
+    ...(configService
+      .get<string>('CORS_ORIGIN')
+      ?.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean) || []),
     'http://127.0.0.1:5500',
     'http://localhost:5500',
-].filter(Boolean);
+  ].filter(Boolean);
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
+  });
+
+  app.use((request, response, next) => {
+    if (request.method === 'OPTIONS') {
+      response.sendStatus(204);
+      return;
+    }
+
+    next();
   });
 
   app.useGlobalPipes(
@@ -57,7 +72,10 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const port = configService.get<number>('APP_PORT') || 3001;
+  const port =
+    configService.get<number>('PORT') ||
+    configService.get<number>('APP_PORT') ||
+    3001;
 
   await app.listen(port);
 }
