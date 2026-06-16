@@ -1,5 +1,16 @@
 # PXBR Breed API
 
+![Status](https://img.shields.io/badge/status-active-success)
+![Version](https://img.shields.io/badge/version-1.0-blue)
+![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
+![Framework](https://img.shields.io/badge/framework-NestJS-red)
+![Language](https://img.shields.io/badge/language-TypeScript-blue)
+![ORM](https://img.shields.io/badge/ORM-TypeORM-orange)
+![Database](https://img.shields.io/badge/database-PostgreSQL-blue)
+![Auth](https://img.shields.io/badge/auth-JWT%20%2B%20Refresh%20Token-green)
+![Tests](https://img.shields.io/badge/tests-Jest-c21325)
+![Deploy](https://img.shields.io/badge/deploy-Render%20%2B%20Supabase-black)
+
 API REST do PXBR Breed, desenvolvida com NestJS, TypeORM, PostgreSQL, JWT, Swagger e Jest.
 
 Esta API centraliza a persistência e as regras de backend para o sistema PXBR Breed, incluindo autenticação, clientes, encomendas, Pokemons das encomendas, histórico de status, transações, Pokemons próprios, Hidden Abilities, configurações, relatórios e backup.
