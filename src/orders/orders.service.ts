@@ -37,11 +37,7 @@ export class OrdersService {
             const matchesSearch = this.matchesSearch(order, query.search);
 
             return (
-                matchesPlayer &&
-                matchesStatus &&
-                matchesArchived &&
-                matchesPayment &&
-                matchesSearch
+                matchesPlayer && matchesStatus && matchesArchived && matchesPayment && matchesSearch
             );
         });
     }

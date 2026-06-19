@@ -46,6 +46,4 @@ const sqliteConfig: DataSourceOptions = {
     synchronize: false,
 };
 
-export default new DataSource(
-    databaseType === 'postgres' ? postgresConfig : sqliteConfig,
-);
+export default new DataSource(databaseType === 'postgres' ? postgresConfig : sqliteConfig);

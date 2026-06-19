@@ -141,15 +141,8 @@ export class BackupService {
         const importedPlayerIds = new Set<string>();
         const importedOrderIds = new Set<string>();
 
-        const players = await this.importPlayers(
-            data.players,
-            importedPlayerIds,
-        );
-        const orders = await this.importOrders(
-            data.orders,
-            importedPlayerIds,
-            importedOrderIds,
-        );
+        const players = await this.importPlayers(data.players, importedPlayerIds);
+        const orders = await this.importOrders(data.orders, importedPlayerIds, importedOrderIds);
         const transactions = await this.importTransactions(
             data.transactions,
             importedPlayerIds,
@@ -159,9 +152,7 @@ export class BackupService {
             data.orderStatusHistory,
             importedOrderIds,
         );
-        const ownedPokemons = await this.importOwnedPokemons(
-            data.ownedPokemons,
-        );
+        const ownedPokemons = await this.importOwnedPokemons(data.ownedPokemons);
         const ownedHas = await this.importOwnedHas(data.ownedHas);
         const settings = await this.importSettings(data.settings);
 
@@ -183,9 +174,7 @@ export class BackupService {
 
     private normalizeBackupPayload(importBackupDto: ImportBackupDto) {
         const data =
-            'data' in importBackupDto
-                ? (importBackupDto.data as ImportBackupDto)
-                : importBackupDto;
+            'data' in importBackupDto ? (importBackupDto.data as ImportBackupDto) : importBackupDto;
 
         return {
             players: data.players || [],
@@ -200,15 +189,11 @@ export class BackupService {
 
     private normalizeSettingsPayload(data: ImportBackupDto) {
         if (data.settings) {
-            return Array.isArray(data.settings)
-                ? data.settings
-                : [data.settings];
+            return Array.isArray(data.settings) ? data.settings : [data.settings];
         }
 
         if (data.systemSettings) {
-            return Array.isArray(data.systemSettings)
-                ? data.systemSettings
-                : [data.systemSettings];
+            return Array.isArray(data.systemSettings) ? data.systemSettings : [data.systemSettings];
         }
 
         return [];
@@ -268,17 +253,15 @@ export class BackupService {
                 continue;
             }
 
-            const { player, transactions, statusHistory, ...orderPayload } =
-                order;
+            const { player, transactions, statusHistory, ...orderPayload } = order;
 
             const pokemons = Array.isArray(orderPayload.pokemons)
                 ? orderPayload.pokemons
-                      .map((pokemon) =>
-                          this.normalizeOrderPokemonPayload(pokemon),
+                      .filter((pokemon): pokemon is Record<string, unknown> =>
+                          this.isBackupRecord(pokemon),
                       )
-                      .filter(
-                          (pokemon) => pokemon.pokemonId && pokemon.pokemonName,
-                      )
+                      .map((pokemon) => this.normalizeOrderPokemonPayload(pokemon))
+                      .filter((pokemon) => pokemon.pokemonId && pokemon.pokemonName)
                 : [];
 
             const savedOrder = await this.ordersRepository.save(
@@ -298,24 +281,19 @@ export class BackupService {
         return stats;
     }
 
+    private isBackupRecord(value: unknown): value is Record<string, unknown> {
+        return typeof value === 'object' && value !== null && !Array.isArray(value);
+    }
+
     private normalizeOrderPokemonPayload(pokemon: Record<string, unknown>) {
         const { order: pokemonOrder, ...pokemonPayload } = pokemon;
 
         return {
             ...pokemonPayload,
-            pokemonId:
-                this.getBackupNumber(
-                    pokemon.pokemonId || pokemon.pokemonDexId,
-                ) || 0,
-            pokemonName:
-                this.getBackupString(pokemon.pokemonName || pokemon.name) ||
-                'Unknown',
-            sprite: this.getBackupString(
-                pokemon.sprite || pokemon.pokemonSprite,
-            ),
-            breedPokemonId: this.getBackupNumber(
-                pokemon.breedPokemonId || pokemon.breedBaseDexId,
-            ),
+            pokemonId: this.getBackupNumber(pokemon.pokemonId || pokemon.pokemonDexId) || 0,
+            pokemonName: this.getBackupString(pokemon.pokemonName || pokemon.name) || 'Unknown',
+            sprite: this.getBackupString(pokemon.sprite || pokemon.pokemonSprite),
+            breedPokemonId: this.getBackupNumber(pokemon.breedPokemonId || pokemon.breedBaseDexId),
             breedPokemonName: this.getBackupString(
                 pokemon.breedPokemonName || pokemon.breedBaseName,
             ),
@@ -324,9 +302,7 @@ export class BackupService {
             abilityIsHa: Boolean(pokemon.abilityIsHa),
             regionalForm: this.getBackupString(pokemon.regionalForm),
             regionalFormLabel: this.getBackupString(pokemon.regionalFormLabel),
-            regionalFormDisplayName: this.getBackupString(
-                pokemon.regionalFormDisplayName,
-            ),
+            regionalFormDisplayName: this.getBackupString(pokemon.regionalFormDisplayName),
             value: this.getBackupNumber(pokemon.value) || 0,
             breedable: Boolean(pokemon.breedable),
             status: this.getBackupString(pokemon.status) || 'PENDING',
@@ -341,24 +317,13 @@ export class BackupService {
         const stats = this.createStats();
 
         for (const transaction of transactions) {
-            if (
-                await this.existsById(
-                    this.transactionsRepository,
-                    transaction.id,
-                )
-            ) {
+            if (await this.existsById(this.transactionsRepository, transaction.id)) {
                 stats.skipped++;
                 continue;
             }
 
-            const canUsePlayer = await this.canUsePlayer(
-                transaction.playerId,
-                importedPlayerIds,
-            );
-            const canUseOrder = await this.canUseOrder(
-                transaction.orderId,
-                importedOrderIds,
-            );
+            const canUsePlayer = await this.canUsePlayer(transaction.playerId, importedPlayerIds);
+            const canUseOrder = await this.canUseOrder(transaction.orderId, importedOrderIds);
 
             if (!canUsePlayer || !canUseOrder) {
                 stats.invalid++;
@@ -384,12 +349,7 @@ export class BackupService {
         const stats = this.createStats();
 
         for (const history of orderStatusHistory) {
-            if (
-                await this.existsById(
-                    this.orderStatusHistoryRepository,
-                    history.id,
-                )
-            ) {
+            if (await this.existsById(this.orderStatusHistoryRepository, history.id)) {
                 stats.skipped++;
                 continue;
             }
@@ -429,23 +389,14 @@ export class BackupService {
         const stats = this.createStats();
 
         for (const ownedPokemon of ownedPokemons) {
-            if (
-                await this.existsById(
-                    this.ownedPokemonsRepository,
-                    ownedPokemon.id,
-                )
-            ) {
+            if (await this.existsById(this.ownedPokemonsRepository, ownedPokemon.id)) {
                 stats.skipped++;
                 continue;
             }
 
-            const normalizedOwnedPokemon =
-                this.normalizeOwnedPokemonPayload(ownedPokemon);
+            const normalizedOwnedPokemon = this.normalizeOwnedPokemonPayload(ownedPokemon);
 
-            if (
-                !normalizedOwnedPokemon.pokemonDexId ||
-                !normalizedOwnedPokemon.pokemonName
-            ) {
+            if (!normalizedOwnedPokemon.pokemonDexId || !normalizedOwnedPokemon.pokemonName) {
                 stats.invalid++;
                 continue;
             }
@@ -492,16 +443,10 @@ export class BackupService {
         return {
             id: this.getBackupString(ownedPokemon.id) || undefined,
             pokemonDexId: this.getBackupNumber(
-                ownedPokemon.pokemonDexId ||
-                    ownedPokemon.pokemonId ||
-                    ownedPokemon.dexId,
+                ownedPokemon.pokemonDexId || ownedPokemon.pokemonId || ownedPokemon.dexId,
             ),
-            pokemonName: this.getBackupString(
-                ownedPokemon.pokemonName || ownedPokemon.name,
-            ),
-            pokemonSprite: this.getBackupString(
-                ownedPokemon.pokemonSprite || ownedPokemon.sprite,
-            ),
+            pokemonName: this.getBackupString(ownedPokemon.pokemonName || ownedPokemon.name),
+            pokemonSprite: this.getBackupString(ownedPokemon.pokemonSprite || ownedPokemon.sprite),
             breedBaseDexId: this.getBackupNumber(
                 ownedPokemon.breedBaseDexId ||
                     ownedPokemon.breedPokemonId ||
@@ -522,19 +467,13 @@ export class BackupService {
                 this.getBackupString(ownedPokemon.sex) ||
                 'GENDERLESS',
             nature: this.getBackupString(ownedPokemon.nature),
-            notes: this.getBackupString(
-                ownedPokemon.notes || ownedPokemon.observations,
-            ),
-            createdAt:
-                this.getBackupString(ownedPokemon.createdAt) || undefined,
-            updatedAt:
-                this.getBackupString(ownedPokemon.updatedAt) || undefined,
+            notes: this.getBackupString(ownedPokemon.notes || ownedPokemon.observations),
+            createdAt: this.getBackupString(ownedPokemon.createdAt) || undefined,
+            updatedAt: this.getBackupString(ownedPokemon.updatedAt) || undefined,
         };
     }
 
-    private async importOwnedHas(
-        ownedHas: Record<string, unknown>[],
-    ): Promise<ImportStats> {
+    private async importOwnedHas(ownedHas: Record<string, unknown>[]): Promise<ImportStats> {
         const stats = this.createStats();
 
         for (const ownedHa of ownedHas) {
@@ -570,12 +509,8 @@ export class BackupService {
         return stats;
     }
 
-    private normalizeOwnedHaPayload(
-        ownedHa: Record<string, unknown>,
-    ): NormalizedOwnedHaBackup {
-        const basePokemonId = this.getBackupNumber(
-            ownedHa.pokemonId || ownedHa.pokemonDexId,
-        );
+    private normalizeOwnedHaPayload(ownedHa: Record<string, unknown>): NormalizedOwnedHaBackup {
+        const basePokemonId = this.getBackupNumber(ownedHa.pokemonId || ownedHa.pokemonDexId);
 
         const pokemonsSource = Array.isArray(ownedHa.pokemons)
             ? ownedHa.pokemons
@@ -584,26 +519,18 @@ export class BackupService {
               : [];
 
         const pokemons: NormalizedOwnedHaPokemonBackup[] = pokemonsSource
-            .map((pokemon) =>
-                this.normalizeOwnedHaPokemonPayload(pokemon, basePokemonId),
-            )
-            .filter(
-                (pokemon): pokemon is NormalizedOwnedHaPokemonBackup =>
-                    pokemon !== null,
-            );
+            .filter((pokemon): pokemon is Record<string, unknown> => this.isBackupRecord(pokemon))
+            .map((pokemon) => this.normalizeOwnedHaPokemonPayload(pokemon, basePokemonId))
+            .filter((pokemon): pokemon is NormalizedOwnedHaPokemonBackup => pokemon !== null);
 
         if (pokemons.length === 0 && basePokemonId) {
-            const pokemonName = this.getBackupString(
-                ownedHa.pokemonName || ownedHa.name,
-            );
+            const pokemonName = this.getBackupString(ownedHa.pokemonName || ownedHa.name);
 
             if (pokemonName) {
                 pokemons.push({
                     pokemonDexId: basePokemonId,
                     pokemonName,
-                    pokemonSprite: this.getBackupString(
-                        ownedHa.pokemonSprite || ownedHa.sprite,
-                    ),
+                    pokemonSprite: this.getBackupString(ownedHa.pokemonSprite || ownedHa.sprite),
                     isBase: true,
                 });
             }
@@ -613,12 +540,8 @@ export class BackupService {
             id: this.getBackupString(ownedHa.id) || undefined,
             abilityName: this.getBackupString(ownedHa.abilityName),
             nature: this.getBackupString(ownedHa.nature),
-            breedableValue: this.getBackupNumber(
-                ownedHa.breedableValue || ownedHa.breedablePrice,
-            ),
-            castratedValue: this.getBackupNumber(
-                ownedHa.castratedValue || ownedHa.castratedPrice,
-            ),
+            breedableValue: this.getBackupNumber(ownedHa.breedableValue || ownedHa.breedablePrice),
+            castratedValue: this.getBackupNumber(ownedHa.castratedValue || ownedHa.castratedPrice),
             notes: this.getBackupString(ownedHa.notes || ownedHa.observations),
             pokemons,
             createdAt: this.getBackupString(ownedHa.createdAt) || undefined,
@@ -633,9 +556,7 @@ export class BackupService {
         const pokemonDexId = this.getBackupNumber(
             pokemon.pokemonDexId || pokemon.pokemonId || pokemon.dexId,
         );
-        const pokemonName = this.getBackupString(
-            pokemon.pokemonName || pokemon.name,
-        );
+        const pokemonName = this.getBackupString(pokemon.pokemonName || pokemon.name);
 
         if (!pokemonDexId || !pokemonName) {
             return null;
@@ -645,18 +566,12 @@ export class BackupService {
             id: this.getBackupString(pokemon.id) || undefined,
             pokemonDexId,
             pokemonName,
-            pokemonSprite: this.getBackupString(
-                pokemon.pokemonSprite || pokemon.sprite,
-            ),
-            isBase: basePokemonId
-                ? pokemonDexId === basePokemonId
-                : Boolean(pokemon.isBase),
+            pokemonSprite: this.getBackupString(pokemon.pokemonSprite || pokemon.sprite),
+            isBase: basePokemonId ? pokemonDexId === basePokemonId : Boolean(pokemon.isBase),
         };
     }
 
-    private async importSettings(
-        settings: Record<string, unknown>[],
-    ): Promise<ImportStats> {
+    private async importSettings(settings: Record<string, unknown>[]): Promise<ImportStats> {
         const stats = this.createStats();
 
         for (const setting of settings) {
@@ -665,9 +580,7 @@ export class BackupService {
                 continue;
             }
 
-            await this.settingsRepository.save(
-                this.settingsRepository.create(setting),
-            );
+            await this.settingsRepository.save(this.settingsRepository.create(setting));
 
             stats.imported++;
         }
@@ -675,10 +588,7 @@ export class BackupService {
         return stats;
     }
 
-    private async existsById<T extends { id: string }>(
-        repository: Repository<T>,
-        id: unknown,
-    ) {
+    private async existsById<T extends { id: string }>(repository: Repository<T>, id: unknown) {
         if (!id || typeof id !== 'string') {
             return false;
         }
@@ -692,10 +602,7 @@ export class BackupService {
         return Boolean(existingRecord);
     }
 
-    private async canUsePlayer(
-        playerId: unknown,
-        importedPlayerIds: Set<string>,
-    ) {
+    private async canUsePlayer(playerId: unknown, importedPlayerIds: Set<string>) {
         if (!playerId || typeof playerId !== 'string') {
             return false;
         }

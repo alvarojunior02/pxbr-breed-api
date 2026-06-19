@@ -1,12 +1,4 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiCreatedResponse,
@@ -26,9 +18,7 @@ import { OrderStatusHistoryService } from './order-status-history.service';
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class OrderStatusHistoryController {
-    constructor(
-        private readonly orderStatusHistoryService: OrderStatusHistoryService,
-    ) {}
+    constructor(private readonly orderStatusHistoryService: OrderStatusHistoryService) {}
 
     @Get('orders/:orderId/status-history')
     @ApiOperation({ summary: 'List order status history' })
@@ -48,10 +38,7 @@ export class OrderStatusHistoryController {
         @Param('orderId') orderId: string,
         @Body() createOrderStatusHistoryDto: CreateOrderStatusHistoryDto,
     ) {
-        return this.orderStatusHistoryService.create(
-            orderId,
-            createOrderStatusHistoryDto,
-        );
+        return this.orderStatusHistoryService.create(orderId, createOrderStatusHistoryDto);
     }
 
     @Delete('order-status-history/:id')

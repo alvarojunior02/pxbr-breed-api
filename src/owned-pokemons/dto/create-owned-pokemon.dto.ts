@@ -22,8 +22,7 @@ class OwnedPokemonEvolutionDto {
     pokemonName: string;
 
     @ApiPropertyOptional({
-        example:
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/636.png',
+        example: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/636.png',
     })
     @IsOptional()
     @IsString()
@@ -43,8 +42,7 @@ export class CreateOwnedPokemonDto {
     pokemonName: string;
 
     @ApiPropertyOptional({
-        example:
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/636.png',
+        example: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/636.png',
     })
     @IsOptional()
     @IsString()

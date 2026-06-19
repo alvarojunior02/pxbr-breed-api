@@ -51,9 +51,7 @@ describe('ReportsController', () => {
 
         reportsServiceMock.getTopSellingPokemons.mockResolvedValue(report);
 
-        await expect(controller.getTopSellingPokemons()).resolves.toEqual(
-            report,
-        );
+        await expect(controller.getTopSellingPokemons()).resolves.toEqual(report);
 
         expect(reportsServiceMock.getTopSellingPokemons).toHaveBeenCalled();
     });

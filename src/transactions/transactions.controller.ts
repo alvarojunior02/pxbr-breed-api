@@ -1,13 +1,4 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    Query,
-    UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -50,8 +41,7 @@ export class TransactionsController {
     @ApiOperation({ summary: 'Create transaction' })
     @ApiCreatedResponse({ description: 'Transaction created successfully.' })
     @ApiBadRequestResponse({
-        description:
-            'Order does not belong to player or amount exceeds remaining amount.',
+        description: 'Order does not belong to player or amount exceeds remaining amount.',
     })
     @ApiNotFoundResponse({ description: 'Player or order not found.' })
     create(@Body() createTransactionDto: CreateTransactionDto) {

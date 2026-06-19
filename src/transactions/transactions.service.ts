@@ -1,8 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrdersService } from '../orders/orders.service';
@@ -32,16 +28,12 @@ export class TransactionsService {
         });
 
         return transactions.filter((transaction) => {
-            const matchesPlayer =
-                !query.playerId || transaction.playerId === query.playerId;
-            const matchesOrder =
-                !query.orderId || transaction.orderId === query.orderId;
+            const matchesPlayer = !query.playerId || transaction.playerId === query.playerId;
+            const matchesOrder = !query.orderId || transaction.orderId === query.orderId;
             const matchesType = !query.type || transaction.type === query.type;
             const matchesSearch = this.matchesSearch(transaction, query.search);
 
-            return (
-                matchesPlayer && matchesOrder && matchesType && matchesSearch
-            );
+            return matchesPlayer && matchesOrder && matchesType && matchesSearch;
         });
     }
 
@@ -64,26 +56,18 @@ export class TransactionsService {
     }
 
     async create(createTransactionDto: CreateTransactionDto) {
-        const player = await this.playersService.findOne(
-            createTransactionDto.playerId,
-        );
-        const order = await this.ordersService.findOne(
-            createTransactionDto.orderId,
-        );
+        const player = await this.playersService.findOne(createTransactionDto.playerId);
+        const order = await this.ordersService.findOne(createTransactionDto.orderId);
 
         if (order.playerId !== player.id) {
-            throw new BadRequestException(
-                'Order does not belong to selected player.',
-            );
+            throw new BadRequestException('Order does not belong to selected player.');
         }
 
         const currentPaidAmount = order.paidAmount || 0;
         const nextPaidAmount = currentPaidAmount + createTransactionDto.amount;
 
         if (nextPaidAmount > order.total) {
-            throw new BadRequestException(
-                'Transaction amount exceeds order remaining amount.',
-            );
+            throw new BadRequestException('Transaction amount exceeds order remaining amount.');
         }
 
         const transaction = this.transactionsRepository.create({
@@ -94,8 +78,7 @@ export class TransactionsService {
             notes: createTransactionDto.notes || null,
         });
 
-        const savedTransaction =
-            await this.transactionsRepository.save(transaction);
+        const savedTransaction = await this.transactionsRepository.save(transaction);
 
         await this.ordersService.update(order.id, {
             paidAmount: nextPaidAmount,
@@ -112,10 +95,7 @@ export class TransactionsService {
 
         const order = await this.ordersService.findOne(transaction.orderId);
 
-        const nextPaidAmount = Math.max(
-            (order.paidAmount || 0) - transaction.amount,
-            0,
-        );
+        const nextPaidAmount = Math.max((order.paidAmount || 0) - transaction.amount, 0);
 
         await this.ordersService.update(order.id, {
             paidAmount: nextPaidAmount,

@@ -5,16 +5,16 @@ import {
     CreateDateColumn,
     Entity,
     PrimaryGeneratedColumn,
-    UpdateDateColumn
-} from "typeorm";
+    UpdateDateColumn,
+} from 'typeorm';
 
 export enum UserRole {
-    ADMIN = "ADMIN"
+    ADMIN = 'ADMIN',
 }
 
-@Entity("users")
+@Entity('users')
 export class User {
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ unique: true })

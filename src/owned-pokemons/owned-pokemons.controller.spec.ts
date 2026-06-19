@@ -24,9 +24,7 @@ describe('OwnedPokemonsController', () => {
             ],
         }).compile();
 
-        controller = module.get<OwnedPokemonsController>(
-            OwnedPokemonsController,
-        );
+        controller = module.get<OwnedPokemonsController>(OwnedPokemonsController);
 
         jest.clearAllMocks();
     });
@@ -66,13 +64,9 @@ describe('OwnedPokemonsController', () => {
 
         ownedPokemonsServiceMock.findOne.mockResolvedValue(ownedPokemon);
 
-        await expect(controller.findOne('owned-pokemon-id')).resolves.toEqual(
-            ownedPokemon,
-        );
+        await expect(controller.findOne('owned-pokemon-id')).resolves.toEqual(ownedPokemon);
 
-        expect(ownedPokemonsServiceMock.findOne).toHaveBeenCalledWith(
-            'owned-pokemon-id',
-        );
+        expect(ownedPokemonsServiceMock.findOne).toHaveBeenCalledWith('owned-pokemon-id');
     });
 
     it('should create owned Pokémon', async () => {
@@ -111,14 +105,9 @@ describe('OwnedPokemonsController', () => {
 
         ownedPokemonsServiceMock.update.mockResolvedValue(ownedPokemon);
 
-        await expect(
-            controller.update('owned-pokemon-id', dto),
-        ).resolves.toEqual(ownedPokemon);
+        await expect(controller.update('owned-pokemon-id', dto)).resolves.toEqual(ownedPokemon);
 
-        expect(ownedPokemonsServiceMock.update).toHaveBeenCalledWith(
-            'owned-pokemon-id',
-            dto,
-        );
+        expect(ownedPokemonsServiceMock.update).toHaveBeenCalledWith('owned-pokemon-id', dto);
     });
 
     it('should delete owned Pokémon', async () => {
@@ -130,8 +119,6 @@ describe('OwnedPokemonsController', () => {
             deleted: true,
         });
 
-        expect(ownedPokemonsServiceMock.remove).toHaveBeenCalledWith(
-            'owned-pokemon-id',
-        );
+        expect(ownedPokemonsServiceMock.remove).toHaveBeenCalledWith('owned-pokemon-id');
     });
 });

@@ -1,21 +1,21 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import bcrypt from "bcrypt";
-import { Repository } from "typeorm";
-import { User, UserRole } from "./entities/user.entity";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
+import { User, UserRole } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
-        private readonly usersRepository: Repository<User>
+        private readonly usersRepository: Repository<User>,
     ) {}
 
     findByEmail(email: string) {
         return this.usersRepository.findOne({
             where: {
-                email: email.trim().toLowerCase()
-            }
+                email: email.trim().toLowerCase(),
+            },
         });
     }
 
@@ -23,8 +23,8 @@ export class UsersService {
         return this.usersRepository.findOne({
             where: {
                 id,
-                isActive: true
-            }
+                isActive: true,
+            },
         });
     }
 
@@ -33,7 +33,7 @@ export class UsersService {
             email,
             passwordHash: await bcrypt.hash(password, 12),
             role: UserRole.ADMIN,
-            isActive: true
+            isActive: true,
         });
 
         return this.usersRepository.save(user);
@@ -51,19 +51,19 @@ export class UsersService {
 
     async updateLastLogin(userId: string) {
         await this.usersRepository.update(userId, {
-            lastLoginAt: new Date()
+            lastLoginAt: new Date(),
         });
     }
 
     async updateRefreshTokenHash(userId: string, refreshToken: string) {
         await this.usersRepository.update(userId, {
-            refreshTokenHash: await bcrypt.hash(refreshToken, 12)
+            refreshTokenHash: await bcrypt.hash(refreshToken, 12),
         });
     }
 
     async clearRefreshTokenHash(userId: string) {
         await this.usersRepository.update(userId, {
-            refreshTokenHash: undefined
+            refreshTokenHash: undefined,
         });
     }
 }

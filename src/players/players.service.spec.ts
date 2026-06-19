@@ -99,9 +99,7 @@ describe('PlayersService', () => {
     it('should throw NotFoundException when player does not exist', async () => {
         repositoryMock.findOne.mockResolvedValue(null);
 
-        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(
-            NotFoundException,
-        );
+        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should create player', async () => {
@@ -181,13 +179,9 @@ describe('PlayersService', () => {
             notes: 'New note.',
         };
 
-        repositoryMock.findOne
-            .mockResolvedValueOnce(player)
-            .mockResolvedValueOnce(null);
+        repositoryMock.findOne.mockResolvedValueOnce(player).mockResolvedValueOnce(null);
 
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         await expect(service.update('player-id', dto)).resolves.toEqual({
             ...player,
@@ -222,9 +216,7 @@ describe('PlayersService', () => {
         };
 
         repositoryMock.findOne.mockResolvedValue(player);
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         await expect(service.update('player-id', dto)).resolves.toEqual({
             ...player,

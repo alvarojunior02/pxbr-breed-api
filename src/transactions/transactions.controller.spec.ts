@@ -63,13 +63,9 @@ describe('TransactionsController', () => {
 
         transactionsServiceMock.findOne.mockResolvedValue(transaction);
 
-        await expect(controller.findOne('transaction-id')).resolves.toEqual(
-            transaction,
-        );
+        await expect(controller.findOne('transaction-id')).resolves.toEqual(transaction);
 
-        expect(transactionsServiceMock.findOne).toHaveBeenCalledWith(
-            'transaction-id',
-        );
+        expect(transactionsServiceMock.findOne).toHaveBeenCalledWith('transaction-id');
     });
 
     it('should create transaction', async () => {
@@ -102,8 +98,6 @@ describe('TransactionsController', () => {
             deleted: true,
         });
 
-        expect(transactionsServiceMock.remove).toHaveBeenCalledWith(
-            'transaction-id',
-        );
+        expect(transactionsServiceMock.remove).toHaveBeenCalledWith('transaction-id');
     });
 });

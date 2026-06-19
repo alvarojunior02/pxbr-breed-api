@@ -240,12 +240,9 @@ describe('AuthService', () => {
             refreshToken: 'new-refresh-token',
         });
 
-        expect(jwtServiceMock.verifyAsync).toHaveBeenCalledWith(
-            'old-refresh-token',
-            {
-                secret: 'refresh-secret',
-            },
-        );
+        expect(jwtServiceMock.verifyAsync).toHaveBeenCalledWith('old-refresh-token', {
+            secret: 'refresh-secret',
+        });
         expect(usersServiceMock.findById).toHaveBeenCalledWith(user.id);
         expect(usersServiceMock.updateRefreshTokenHash).toHaveBeenCalledWith(
             user.id,
@@ -254,13 +251,11 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException when refresh token is invalid', async () => {
-        jwtServiceMock.verifyAsync.mockRejectedValue(
-            new Error('Invalid token'),
-        );
+        jwtServiceMock.verifyAsync.mockRejectedValue(new Error('Invalid token'));
 
-        await expect(
-            service.refresh('invalid-refresh-token'),
-        ).rejects.toBeInstanceOf(UnauthorizedException);
+        await expect(service.refresh('invalid-refresh-token')).rejects.toBeInstanceOf(
+            UnauthorizedException,
+        );
     });
 
     it('should throw UnauthorizedException when refresh token hash does not match', async () => {
@@ -280,9 +275,9 @@ describe('AuthService', () => {
 
         jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
-        await expect(
-            service.refresh('old-refresh-token'),
-        ).rejects.toBeInstanceOf(UnauthorizedException);
+        await expect(service.refresh('old-refresh-token')).rejects.toBeInstanceOf(
+            UnauthorizedException,
+        );
     });
 
     it('should logout and clear refresh token hash', async () => {
@@ -290,9 +285,7 @@ describe('AuthService', () => {
 
         await expect(service.logout('user-id')).resolves.toBeUndefined();
 
-        expect(usersServiceMock.clearRefreshTokenHash).toHaveBeenCalledWith(
-            'user-id',
-        );
+        expect(usersServiceMock.clearRefreshTokenHash).toHaveBeenCalledWith('user-id');
     });
 
     it('should ignore logout when user id is not provided', async () => {

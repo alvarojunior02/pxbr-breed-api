@@ -9,75 +9,73 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import type { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
+    const configService = app.get(ConfigService);
 
-  app.setGlobalPrefix('api');
+    app.setGlobalPrefix('api');
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('PXBR Breed API')
-    .setDescription('REST API for PXBR Breed management system.')
-    .setVersion('1.0.0')
-    .addBearerAuth()
-    .addCookieAuth('refreshToken')
-    .build();
+    const swaggerConfig = new DocumentBuilder()
+        .setTitle('PXBR Breed API')
+        .setDescription('REST API for PXBR Breed management system.')
+        .setVersion('1.0.0')
+        .addBearerAuth()
+        .addCookieAuth('refreshToken')
+        .build();
 
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
-  SwaggerModule.setup('api/docs', app, swaggerDocument);
+    SwaggerModule.setup('api/docs', app, swaggerDocument);
 
-  app.use(helmet());
+    app.use(helmet());
 
-  app.use(cookieParser());
+    app.use(cookieParser());
 
-  const corsOrigins = [
-    configService.get<string>('FRONTEND_URL'),
-    ...(configService
-      .get<string>('CORS_ORIGIN')
-      ?.split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean) || []),
-    'http://127.0.0.1:5500',
-    'http://localhost:5500',
-  ].filter(Boolean);
+    const corsOrigins = [
+        configService.get<string>('FRONTEND_URL'),
+        ...(configService
+            .get<string>('CORS_ORIGIN')
+            ?.split(',')
+            .map((origin) => origin.trim())
+            .filter(Boolean) || []),
+        'http://127.0.0.1:5500',
+        'http://localhost:5500',
+    ].filter(Boolean);
 
-  app.enableCors({
-    origin: corsOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 204,
-  });
+    app.enableCors({
+        origin: corsOrigins,
+        credentials: true,
+        methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        optionsSuccessStatus: 204,
+    });
 
-  app.use((request, response, next) => {
-    if (request.method === 'OPTIONS') {
-      response.sendStatus(204);
-      return;
-    }
+    app.use((request: Request, response: Response, next: NextFunction) => {
+        if (request.method === 'OPTIONS') {
+            response.sendStatus(204);
+            return;
+        }
 
-    next();
-  });
+        next();
+    });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            transform: true,
+        }),
+    );
 
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new ResponseInterceptor());
+    app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const port =
-    configService.get<number>('PORT') ||
-    configService.get<number>('APP_PORT') ||
-    3001;
+    const port = configService.get<number>('PORT') || configService.get<number>('APP_PORT') || 3001;
 
-  await app.listen(port);
+    await app.listen(port);
 }
 
-bootstrap();
+void bootstrap();

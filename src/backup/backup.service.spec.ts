@@ -154,9 +154,7 @@ describe('BackupService', () => {
         playersRepositoryMock.find.mockResolvedValue(players);
         ordersRepositoryMock.find.mockResolvedValue(orders);
         transactionsRepositoryMock.find.mockResolvedValue(transactions);
-        orderStatusHistoryRepositoryMock.find.mockResolvedValue(
-            orderStatusHistory,
-        );
+        orderStatusHistoryRepositoryMock.find.mockResolvedValue(orderStatusHistory);
         ownedPokemonsRepositoryMock.find.mockResolvedValue(ownedPokemons);
         ownedHasRepositoryMock.find.mockResolvedValue(ownedHas);
 
@@ -332,34 +330,18 @@ describe('BackupService', () => {
         playersRepositoryMock.create.mockImplementation((value) => value);
         ordersRepositoryMock.create.mockImplementation((value) => value);
         transactionsRepositoryMock.create.mockImplementation((value) => value);
-        orderStatusHistoryRepositoryMock.create.mockImplementation(
-            (value) => value,
-        );
+        orderStatusHistoryRepositoryMock.create.mockImplementation((value) => value);
         ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
         ownedHasRepositoryMock.create.mockImplementation((value) => value);
         settingsRepositoryMock.create.mockImplementation((value) => value);
 
-        playersRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
-        ordersRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
-        transactionsRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
-        orderStatusHistoryRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
-        ownedPokemonsRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
-        ownedHasRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
-        settingsRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        playersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        ordersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        transactionsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        orderStatusHistoryRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        ownedPokemonsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        ownedHasRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        settingsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         const result = await service.importBackup(dto);
 
@@ -546,9 +528,7 @@ describe('BackupService', () => {
         };
 
         ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
-        ownedPokemonsRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        ownedPokemonsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         const result = await service.importBackup(dto);
 
@@ -676,12 +656,8 @@ describe('BackupService', () => {
         playersRepositoryMock.create.mockImplementation((value) => value);
         ordersRepositoryMock.create.mockImplementation((value) => value);
 
-        playersRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
-        ordersRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        playersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
+        ordersRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         await service.importBackup(dto);
 
@@ -715,9 +691,7 @@ describe('BackupService', () => {
 
         ownedPokemonsRepositoryMock.findOne.mockResolvedValue(null);
         ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
-        ownedPokemonsRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        ownedPokemonsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         const result = await service.importBackup(dto);
 
@@ -756,9 +730,7 @@ describe('BackupService', () => {
 
         ownedPokemonsRepositoryMock.findOne.mockResolvedValue(null);
         ownedPokemonsRepositoryMock.create.mockImplementation((value) => value);
-        ownedPokemonsRepositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        ownedPokemonsRepositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         const result = await service.importBackup(dto);
 

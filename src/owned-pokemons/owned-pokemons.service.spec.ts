@@ -82,9 +82,7 @@ describe('OwnedPokemonsService', () => {
 
         repositoryMock.find.mockResolvedValue(ownedPokemons);
 
-        await expect(service.findAll({ search: 'sol' })).resolves.toEqual([
-            ownedPokemons[0],
-        ]);
+        await expect(service.findAll({ search: 'sol' })).resolves.toEqual([ownedPokemons[0]]);
     });
 
     it('should get owned Pokémon by id', async () => {
@@ -96,9 +94,7 @@ describe('OwnedPokemonsService', () => {
 
         repositoryMock.findOne.mockResolvedValue(ownedPokemon);
 
-        await expect(service.findOne('owned-pokemon-id')).resolves.toEqual(
-            ownedPokemon,
-        );
+        await expect(service.findOne('owned-pokemon-id')).resolves.toEqual(ownedPokemon);
 
         expect(repositoryMock.findOne).toHaveBeenCalledWith({
             where: {
@@ -110,9 +106,7 @@ describe('OwnedPokemonsService', () => {
     it('should throw NotFoundException when owned Pokémon does not exist', async () => {
         repositoryMock.findOne.mockResolvedValue(null);
 
-        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(
-            NotFoundException,
-        );
+        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should create owned Pokémon', async () => {
@@ -178,9 +172,7 @@ describe('OwnedPokemonsService', () => {
         };
 
         repositoryMock.findOne.mockResolvedValue(ownedPokemon);
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         await expect(service.update('owned-pokemon-id', dto)).resolves.toEqual({
             ...ownedPokemon,

@@ -20,9 +20,7 @@ export class OwnedPokemonsService {
             },
         });
 
-        return ownedPokemons.filter((ownedPokemon) =>
-            this.matchesFilters(ownedPokemon, query),
-        );
+        return ownedPokemons.filter((ownedPokemon) => this.matchesFilters(ownedPokemon, query));
     }
 
     async findOne(id: string) {
@@ -48,8 +46,7 @@ export class OwnedPokemonsService {
             breedBaseName: createOwnedPokemonDto.breedBaseName || null,
             regionalForm: createOwnedPokemonDto.regionalForm || null,
             regionalFormLabel: createOwnedPokemonDto.regionalFormLabel || null,
-            regionalFormDisplayName:
-                createOwnedPokemonDto.regionalFormDisplayName || null,
+            regionalFormDisplayName: createOwnedPokemonDto.regionalFormDisplayName || null,
             eggGroups: createOwnedPokemonDto.eggGroups || [],
             evolutionLine: createOwnedPokemonDto.evolutionLine || [],
             status: createOwnedPokemonDto.status,
@@ -121,24 +118,16 @@ export class OwnedPokemonsService {
         };
     }
 
-    private matchesFilters(
-        ownedPokemon: OwnedPokemon,
-        query: FindOwnedPokemonsQueryDto,
-    ) {
+    private matchesFilters(ownedPokemon: OwnedPokemon, query: FindOwnedPokemonsQueryDto) {
         const matchesSearch = this.matchesSearch(ownedPokemon, query.search);
-        const matchesStatus =
-            !query.status || ownedPokemon.status === query.status;
-        const matchesGender =
-            !query.gender || ownedPokemon.gender === query.gender;
-        const matchesNature =
-            !query.nature || ownedPokemon.nature === query.nature;
+        const matchesStatus = !query.status || ownedPokemon.status === query.status;
+        const matchesGender = !query.gender || ownedPokemon.gender === query.gender;
+        const matchesNature = !query.nature || ownedPokemon.nature === query.nature;
         const matchesDexId =
-            !query.pokemonDexId ||
-            ownedPokemon.pokemonDexId === query.pokemonDexId;
+            !query.pokemonDexId || ownedPokemon.pokemonDexId === query.pokemonDexId;
         const matchesName =
             !query.pokemonName ||
-            ownedPokemon.pokemonName.toLowerCase() ===
-                query.pokemonName.toLowerCase();
+            ownedPokemon.pokemonName.toLowerCase() === query.pokemonName.toLowerCase();
 
         return (
             matchesSearch &&

@@ -116,9 +116,7 @@ describe('OrdersController', () => {
 
         ordersServiceMock.update.mockResolvedValue(order);
 
-        await expect(controller.update('order-id', dto)).resolves.toEqual(
-            order,
-        );
+        await expect(controller.update('order-id', dto)).resolves.toEqual(order);
 
         expect(ordersServiceMock.update).toHaveBeenCalledWith('order-id', dto);
     });

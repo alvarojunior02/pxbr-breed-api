@@ -8,9 +8,7 @@ import { ReportsService } from './reports.service';
 import { Transaction } from '../transactions/entities/transaction.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Order, OrderPokemon, Player, Transaction]),
-    ],
+    imports: [TypeOrmModule.forFeature([Order, OrderPokemon, Player, Transaction])],
     controllers: [ReportsController],
     providers: [ReportsService],
 })

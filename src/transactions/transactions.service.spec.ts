@@ -74,9 +74,7 @@ describe('TransactionsService', () => {
 
         repositoryMock.find.mockResolvedValue(transactions);
 
-        await expect(
-            service.findAll({ playerId: 'player-id' }),
-        ).resolves.toEqual(transactions);
+        await expect(service.findAll({ playerId: 'player-id' })).resolves.toEqual(transactions);
 
         expect(repositoryMock.find).toHaveBeenCalledWith({
             relations: {
@@ -99,9 +97,7 @@ describe('TransactionsService', () => {
 
         repositoryMock.findOne.mockResolvedValue(transaction);
 
-        await expect(service.findOne('transaction-id')).resolves.toEqual(
-            transaction,
-        );
+        await expect(service.findOne('transaction-id')).resolves.toEqual(transaction);
 
         expect(repositoryMock.findOne).toHaveBeenCalledWith({
             where: {
@@ -117,9 +113,7 @@ describe('TransactionsService', () => {
     it('should throw NotFoundException when transaction does not exist', async () => {
         repositoryMock.findOne.mockResolvedValue(null);
 
-        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(
-            NotFoundException,
-        );
+        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should create transaction and update order payment values', async () => {
@@ -196,9 +190,7 @@ describe('TransactionsService', () => {
             total: 7000000,
         });
 
-        await expect(service.create(dto)).rejects.toBeInstanceOf(
-            BadRequestException,
-        );
+        await expect(service.create(dto)).rejects.toBeInstanceOf(BadRequestException);
     });
 
     it('should throw BadRequestException when amount exceeds remaining amount', async () => {
@@ -219,9 +211,7 @@ describe('TransactionsService', () => {
             total: 7000000,
         });
 
-        await expect(service.create(dto)).rejects.toBeInstanceOf(
-            BadRequestException,
-        );
+        await expect(service.create(dto)).rejects.toBeInstanceOf(BadRequestException);
     });
 
     it('should delete transaction and update order payment values', async () => {

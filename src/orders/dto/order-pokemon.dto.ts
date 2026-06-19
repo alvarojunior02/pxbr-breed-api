@@ -1,12 +1,5 @@
 ﻿import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-    IsBoolean,
-    IsInt,
-    IsOptional,
-    IsString,
-    MaxLength,
-    Min,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class OrderPokemonDto {
     @ApiProperty({ example: 37 })
@@ -19,7 +12,9 @@ export class OrderPokemonDto {
     @MaxLength(100)
     pokemonName: string;
 
-    @ApiPropertyOptional({ example: 'https://play.pokemonshowdown.com/sprites/dex/vulpix-alola.png' })
+    @ApiPropertyOptional({
+        example: 'https://play.pokemonshowdown.com/sprites/dex/vulpix-alola.png',
+    })
     @IsOptional()
     @IsString()
     sprite?: string;

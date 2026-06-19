@@ -26,10 +26,7 @@ export class OrderStatusHistoryService {
         });
     }
 
-    async create(
-        orderId: string,
-        createOrderStatusHistoryDto: CreateOrderStatusHistoryDto,
-    ) {
+    async create(orderId: string, createOrderStatusHistoryDto: CreateOrderStatusHistoryDto) {
         await this.ordersService.findOne(orderId);
 
         const history = this.orderStatusHistoryRepository.create({

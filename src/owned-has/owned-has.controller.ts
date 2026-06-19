@@ -58,10 +58,7 @@ export class OwnedHasController {
     @ApiOperation({ summary: 'Update owned HA' })
     @ApiOkResponse({ description: 'Owned HA updated successfully.' })
     @ApiNotFoundResponse({ description: 'Owned HA not found.' })
-    update(
-        @Param('id') id: string,
-        @Body() updateOwnedHaDto: UpdateOwnedHaDto,
-    ) {
+    update(@Param('id') id: string, @Body() updateOwnedHaDto: UpdateOwnedHaDto) {
         return this.ownedHasService.update(id, updateOwnedHaDto);
     }
 

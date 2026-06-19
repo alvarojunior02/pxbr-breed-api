@@ -42,9 +42,7 @@ describe('UsersService', () => {
 
         repositoryMock.findOne.mockResolvedValue(user);
 
-        await expect(service.findByEmail('admin@pxbr.local')).resolves.toEqual(
-            user,
-        );
+        await expect(service.findByEmail('admin@pxbr.local')).resolves.toEqual(user);
 
         expect(repositoryMock.findOne).toHaveBeenCalledWith({
             where: {
@@ -122,9 +120,7 @@ describe('UsersService', () => {
             affected: 1,
         });
 
-        await expect(
-            service.updateLastLogin('user-id'),
-        ).resolves.toBeUndefined();
+        await expect(service.updateLastLogin('user-id')).resolves.toBeUndefined();
 
         expect(repositoryMock.update).toHaveBeenCalledWith('user-id', {
             lastLoginAt: expect.any(Date),
@@ -150,9 +146,7 @@ describe('UsersService', () => {
             affected: 1,
         });
 
-        await expect(
-            service.clearRefreshTokenHash('user-id'),
-        ).resolves.toBeUndefined();
+        await expect(service.clearRefreshTokenHash('user-id')).resolves.toBeUndefined();
 
         expect(repositoryMock.update).toHaveBeenCalledWith('user-id', {
             refreshTokenHash: undefined,

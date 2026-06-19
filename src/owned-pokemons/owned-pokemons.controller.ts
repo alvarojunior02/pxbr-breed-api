@@ -58,10 +58,7 @@ export class OwnedPokemonsController {
     @ApiOperation({ summary: 'Update owned Pokémon' })
     @ApiOkResponse({ description: 'Owned Pokémon updated successfully.' })
     @ApiNotFoundResponse({ description: 'Owned Pokémon not found.' })
-    update(
-        @Param('id') id: string,
-        @Body() updateOwnedPokemonDto: UpdateOwnedPokemonDto,
-    ) {
+    update(@Param('id') id: string, @Body() updateOwnedPokemonDto: UpdateOwnedPokemonDto) {
         return this.ownedPokemonsService.update(id, updateOwnedPokemonDto);
     }
 

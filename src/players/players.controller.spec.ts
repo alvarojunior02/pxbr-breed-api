@@ -91,14 +91,9 @@ describe('PlayersController', () => {
 
         playersServiceMock.update.mockResolvedValue(player);
 
-        await expect(controller.update('player-id', dto)).resolves.toEqual(
-            player,
-        );
+        await expect(controller.update('player-id', dto)).resolves.toEqual(player);
 
-        expect(playersServiceMock.update).toHaveBeenCalledWith(
-            'player-id',
-            dto,
-        );
+        expect(playersServiceMock.update).toHaveBeenCalledWith('player-id', dto);
     });
 
     it('should delete player', async () => {

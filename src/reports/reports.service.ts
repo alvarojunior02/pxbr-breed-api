@@ -50,8 +50,7 @@ export class ReportsService {
 
         return this.applyLimit(
             Array.from(groupedPokemons.values()).sort(
-                (a, b) =>
-                    b.quantity - a.quantity || b.totalValue - a.totalValue,
+                (a, b) => b.quantity - a.quantity || b.totalValue - a.totalValue,
             ),
             query.limit,
         );
@@ -90,8 +89,7 @@ export class ReportsService {
 
         return this.applyLimit(
             Array.from(groupedHas.values()).sort(
-                (a, b) =>
-                    b.quantity - a.quantity || b.totalValue - a.totalValue,
+                (a, b) => b.quantity - a.quantity || b.totalValue - a.totalValue,
             ),
             query.limit,
         );
@@ -129,9 +127,7 @@ export class ReportsService {
 
         return this.applyLimit(
             Array.from(groupedPlayers.values()).sort(
-                (a, b) =>
-                    b.totalValue - a.totalValue ||
-                    b.totalOrders - a.totalOrders,
+                (a, b) => b.totalValue - a.totalValue || b.totalOrders - a.totalOrders,
             ),
             query.limit,
         );
@@ -151,10 +147,7 @@ export class ReportsService {
         >();
 
         for (const order of orders) {
-            const debt = Math.max(
-                (order.total || 0) - (order.paidAmount || 0),
-                0,
-            );
+            const debt = Math.max((order.total || 0) - (order.paidAmount || 0), 0);
 
             if (debt <= 0) {
                 continue;
@@ -175,8 +168,7 @@ export class ReportsService {
 
         return this.applyLimit(
             Array.from(groupedPlayers.values()).sort(
-                (a, b) =>
-                    b.debtAmount - a.debtAmount || b.openOrders - a.openOrders,
+                (a, b) => b.debtAmount - a.debtAmount || b.openOrders - a.openOrders,
             ),
             query.limit,
         );
@@ -189,20 +181,12 @@ export class ReportsService {
             this.getOrderPokemonsByPeriod(query),
         ]);
 
-        const totalRevenue = orders.reduce(
-            (total, order) => total + (order.total || 0),
-            0,
-        );
+        const totalRevenue = orders.reduce((total, order) => total + (order.total || 0), 0);
 
-        const paidRevenue = orders.reduce(
-            (total, order) => total + (order.paidAmount || 0),
-            0,
-        );
+        const paidRevenue = orders.reduce((total, order) => total + (order.paidAmount || 0), 0);
 
         const pendingRevenue = orders.reduce(
-            (total, order) =>
-                total +
-                Math.max((order.total || 0) - (order.paidAmount || 0), 0),
+            (total, order) => total + Math.max((order.total || 0) - (order.paidAmount || 0), 0),
             0,
         );
 
@@ -252,18 +236,13 @@ export class ReportsService {
 
             current.totalRevenue += order.total || 0;
             current.paidRevenue += order.paidAmount || 0;
-            current.pendingRevenue += Math.max(
-                (order.total || 0) - (order.paidAmount || 0),
-                0,
-            );
+            current.pendingRevenue += Math.max((order.total || 0) - (order.paidAmount || 0), 0);
             current.orders += 1;
 
             groupedDays.set(date, current);
         }
 
-        return Array.from(groupedDays.values()).sort((a, b) =>
-            a.date.localeCompare(b.date),
-        );
+        return Array.from(groupedDays.values()).sort((a, b) => a.date.localeCompare(b.date));
     }
 
     async getOrdersByStatus(query: FindReportsQueryDto = {}) {
@@ -291,8 +270,7 @@ export class ReportsService {
         }
 
         return Array.from(groupedStatuses.values()).sort(
-            (a, b) =>
-                b.quantity - a.quantity || a.status.localeCompare(b.status),
+            (a, b) => b.quantity - a.quantity || a.status.localeCompare(b.status),
         );
     }
 
@@ -323,9 +301,7 @@ export class ReportsService {
             groupedDays.set(date, current);
         }
 
-        return Array.from(groupedDays.values()).sort((a, b) =>
-            a.date.localeCompare(b.date),
-        );
+        return Array.from(groupedDays.values()).sort((a, b) => a.date.localeCompare(b.date));
     }
 
     async getHaVsRegularSales(query: FindReportsQueryDto = {}) {
@@ -383,9 +359,7 @@ export class ReportsService {
 
         return this.applyLimit(
             Array.from(groupedPlayers.values()).sort(
-                (a, b) =>
-                    b.totalPaid - a.totalPaid ||
-                    b.transactions - a.transactions,
+                (a, b) => b.totalPaid - a.totalPaid || b.transactions - a.transactions,
             ),
             query.limit,
         );
@@ -394,20 +368,12 @@ export class ReportsService {
     async getRevenueSummary(query: FindReportsQueryDto = {}) {
         const orders = await this.getOrdersByPeriod(query);
 
-        const totalRevenue = orders.reduce(
-            (total, order) => total + (order.total || 0),
-            0,
-        );
+        const totalRevenue = orders.reduce((total, order) => total + (order.total || 0), 0);
 
-        const paidRevenue = orders.reduce(
-            (total, order) => total + (order.paidAmount || 0),
-            0,
-        );
+        const paidRevenue = orders.reduce((total, order) => total + (order.paidAmount || 0), 0);
 
         const pendingRevenue = orders.reduce(
-            (total, order) =>
-                total +
-                Math.max((order.total || 0) - (order.paidAmount || 0), 0),
+            (total, order) => total + Math.max((order.total || 0) - (order.paidAmount || 0), 0),
             0,
         );
 
@@ -415,9 +381,7 @@ export class ReportsService {
             totalRevenue,
             paidRevenue,
             pendingRevenue,
-            averageOrderValue: orders.length
-                ? Math.round(totalRevenue / orders.length)
-                : 0,
+            averageOrderValue: orders.length ? Math.round(totalRevenue / orders.length) : 0,
             orders: orders.length,
         };
     }
@@ -430,9 +394,7 @@ export class ReportsService {
             },
         });
 
-        return orders.filter((order) =>
-            this.isWithinPeriod(order.createdAt, query),
-        );
+        return orders.filter((order) => this.isWithinPeriod(order.createdAt, query));
     }
 
     private async getOrderPokemonsByPeriod(query: FindReportsQueryDto) {
@@ -447,10 +409,7 @@ export class ReportsService {
         );
     }
 
-    private isWithinPeriod(
-        date: Date | string | undefined,
-        query: FindReportsQueryDto,
-    ) {
+    private isWithinPeriod(date: Date | string | undefined, query: FindReportsQueryDto) {
         if (!query.startDate && !query.endDate) {
             return true;
         }

@@ -63,9 +63,7 @@ describe('OwnedHasController', () => {
 
         ownedHasServiceMock.findOne.mockResolvedValue(ownedHa);
 
-        await expect(controller.findOne('owned-ha-id')).resolves.toEqual(
-            ownedHa,
-        );
+        await expect(controller.findOne('owned-ha-id')).resolves.toEqual(ownedHa);
 
         expect(ownedHasServiceMock.findOne).toHaveBeenCalledWith('owned-ha-id');
     });
@@ -113,14 +111,9 @@ describe('OwnedHasController', () => {
 
         ownedHasServiceMock.update.mockResolvedValue(ownedHa);
 
-        await expect(controller.update('owned-ha-id', dto)).resolves.toEqual(
-            ownedHa,
-        );
+        await expect(controller.update('owned-ha-id', dto)).resolves.toEqual(ownedHa);
 
-        expect(ownedHasServiceMock.update).toHaveBeenCalledWith(
-            'owned-ha-id',
-            dto,
-        );
+        expect(ownedHasServiceMock.update).toHaveBeenCalledWith('owned-ha-id', dto);
     });
 
     it('should delete owned HA', async () => {

@@ -1,17 +1,15 @@
-import {
-    CallHandler,
-    ExecutionContext,
-    Injectable,
-    NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 
+type ApiResponse<T> = {
+    success: true;
+    data: T;
+    timestamp: string;
+};
+
 @Injectable()
-export class ResponseInterceptor implements NestInterceptor {
-    intercept(
-        _context: ExecutionContext,
-        next: CallHandler,
-    ): Observable<unknown> {
+export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
+    intercept(_context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponse<T>> {
         return next.handle().pipe(
             map((data) => ({
                 success: true,

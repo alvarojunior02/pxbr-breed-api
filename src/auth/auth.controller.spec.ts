@@ -58,24 +58,18 @@ describe('AuthController', () => {
 
         authServiceMock.login.mockResolvedValue(result);
 
-        await expect(controller.login(loginDto, responseMock)).resolves.toEqual(
-            {
-                user: result.user,
-                accessToken: result.accessToken,
-            },
-        );
+        await expect(controller.login(loginDto, responseMock)).resolves.toEqual({
+            user: result.user,
+            accessToken: result.accessToken,
+        });
 
         expect(authServiceMock.login).toHaveBeenCalledWith(loginDto);
-        expect(responseMock.cookie).toHaveBeenCalledWith(
-            'refreshToken',
-            result.refreshToken,
-            {
-                httpOnly: true,
-                sameSite: 'lax',
-                secure: false,
-                maxAge: 1000 * 60 * 60 * 24 * 30,
-            },
-        );
+        expect(responseMock.cookie).toHaveBeenCalledWith('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: false,
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+        });
     });
 
     it('should refresh token using refresh token cookie', async () => {
@@ -97,26 +91,18 @@ describe('AuthController', () => {
 
         authServiceMock.refresh.mockResolvedValue(result);
 
-        await expect(
-            controller.refresh(requestMock, responseMock),
-        ).resolves.toEqual({
+        await expect(controller.refresh(requestMock, responseMock)).resolves.toEqual({
             user: result.user,
             accessToken: result.accessToken,
         });
 
-        expect(authServiceMock.refresh).toHaveBeenCalledWith(
-            'old-refresh-token',
-        );
-        expect(responseMock.cookie).toHaveBeenCalledWith(
-            'refreshToken',
-            result.refreshToken,
-            {
-                httpOnly: true,
-                sameSite: 'lax',
-                secure: false,
-                maxAge: 1000 * 60 * 60 * 24 * 7,
-            },
-        );
+        expect(authServiceMock.refresh).toHaveBeenCalledWith('old-refresh-token');
+        expect(responseMock.cookie).toHaveBeenCalledWith('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: false,
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+        });
     });
 
     it('should throw UnauthorizedException when refresh token cookie is missing', async () => {
@@ -124,9 +110,9 @@ describe('AuthController', () => {
             cookies: {},
         } as unknown as Request;
 
-        await expect(
-            controller.refresh(requestMock, responseMock),
-        ).rejects.toBeInstanceOf(UnauthorizedException);
+        await expect(controller.refresh(requestMock, responseMock)).rejects.toBeInstanceOf(
+            UnauthorizedException,
+        );
 
         expect(authServiceMock.refresh).not.toHaveBeenCalled();
     });
@@ -150,9 +136,7 @@ describe('AuthController', () => {
 
         authServiceMock.logout.mockResolvedValue(undefined);
 
-        await expect(
-            controller.logout(requestMock, responseMock),
-        ).resolves.toEqual({
+        await expect(controller.logout(requestMock, responseMock)).resolves.toEqual({
             success: true,
         });
 
@@ -174,9 +158,7 @@ describe('AuthController', () => {
 
         authServiceMock.refresh.mockRejectedValue(new UnauthorizedException());
 
-        await expect(
-            controller.logout(requestMock, responseMock),
-        ).resolves.toEqual({
+        await expect(controller.logout(requestMock, responseMock)).resolves.toEqual({
             success: true,
         });
 

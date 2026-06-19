@@ -22,9 +22,7 @@ export class OwnedHasService {
             },
         });
 
-        return ownedHas.filter((ownedHa) =>
-            this.matchesFilters(ownedHa, query),
-        );
+        return ownedHas.filter((ownedHa) => this.matchesFilters(ownedHa, query));
     }
 
     async findOne(id: string) {
@@ -51,8 +49,7 @@ export class OwnedHasService {
             pokemons: this.createOwnedHaPokemons(createOwnedHaDto.pokemons),
             regionalForm: createOwnedHaDto.regionalForm || null,
             regionalFormLabel: createOwnedHaDto.regionalFormLabel || null,
-            regionalFormDisplayName:
-                createOwnedHaDto.regionalFormDisplayName || null,
+            regionalFormDisplayName: createOwnedHaDto.regionalFormDisplayName || null,
         });
 
         return this.ownedHasRepository.save(ownedHa);
@@ -86,9 +83,7 @@ export class OwnedHasService {
         });
 
         if (updateOwnedHaDto.pokemons) {
-            ownedHa.pokemons = this.createOwnedHaPokemons(
-                updateOwnedHaDto.pokemons,
-            );
+            ownedHa.pokemons = this.createOwnedHaPokemons(updateOwnedHaDto.pokemons);
         }
 
         return this.ownedHasRepository.save(ownedHa);
@@ -124,20 +119,16 @@ export class OwnedHasService {
         const matchesNature = !query.nature || ownedHa.nature === query.nature;
         const matchesAbility =
             !query.abilityName ||
-            ownedHa.abilityName.toLowerCase() ===
-                query.abilityName.toLowerCase();
+            ownedHa.abilityName.toLowerCase() === query.abilityName.toLowerCase();
         const matchesPokemonDexId =
             !query.pokemonDexId ||
-            ownedHa.pokemons?.some(
-                (pokemon) => pokemon.pokemonDexId === query.pokemonDexId,
-            );
+            ownedHa.pokemons?.some((pokemon) => pokemon.pokemonDexId === query.pokemonDexId);
         const normalizedPokemonName = query.pokemonName?.toLowerCase();
 
         const matchesPokemonName =
             !normalizedPokemonName ||
             ownedHa.pokemons?.some(
-                (pokemon) =>
-                    pokemon.pokemonName.toLowerCase() === normalizedPokemonName,
+                (pokemon) => pokemon.pokemonName.toLowerCase() === normalizedPokemonName,
             );
 
         return (

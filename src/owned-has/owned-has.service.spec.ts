@@ -97,9 +97,7 @@ describe('OwnedHasService', () => {
 
         repositoryMock.find.mockResolvedValue(ownedHas);
 
-        await expect(service.findAll({ search: 'larvesta' })).resolves.toEqual([
-            ownedHas[0],
-        ]);
+        await expect(service.findAll({ search: 'larvesta' })).resolves.toEqual([ownedHas[0]]);
     });
 
     it('should filter owned HAs by nature', async () => {
@@ -120,9 +118,7 @@ describe('OwnedHasService', () => {
 
         repositoryMock.find.mockResolvedValue(ownedHas);
 
-        await expect(service.findAll({ nature: 'Timid' })).resolves.toEqual([
-            ownedHas[0],
-        ]);
+        await expect(service.findAll({ nature: 'Timid' })).resolves.toEqual([ownedHas[0]]);
     });
 
     it('should filter owned HAs by pokemon dex id', async () => {
@@ -153,9 +149,7 @@ describe('OwnedHasService', () => {
 
         repositoryMock.find.mockResolvedValue(ownedHas);
 
-        await expect(service.findAll({ pokemonDexId: 133 })).resolves.toEqual([
-            ownedHas[1],
-        ]);
+        await expect(service.findAll({ pokemonDexId: 133 })).resolves.toEqual([ownedHas[1]]);
     });
 
     it('should get owned HA by id', async () => {
@@ -179,9 +173,7 @@ describe('OwnedHasService', () => {
     it('should throw NotFoundException when owned HA does not exist', async () => {
         repositoryMock.findOne.mockResolvedValue(null);
 
-        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(
-            NotFoundException,
-        );
+        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should create owned HA', async () => {
@@ -238,9 +230,7 @@ describe('OwnedHasService', () => {
         };
 
         repositoryMock.findOne.mockResolvedValue(ownedHa);
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         await expect(service.update('owned-ha-id', dto)).resolves.toEqual({
             ...ownedHa,
@@ -283,9 +273,7 @@ describe('OwnedHasService', () => {
         };
 
         repositoryMock.findOne.mockResolvedValue(ownedHa);
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         const updatedOwnedHa = await service.update('owned-ha-id', dto);
 

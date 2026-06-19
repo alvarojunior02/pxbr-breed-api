@@ -37,19 +37,14 @@ export class AuthController {
     @ApiUnauthorizedResponse({ description: 'Invalid credentials.' })
     @Throttle({ default: { limit: 5, ttl: 60000 } })
     @Post('login')
-    async login(
-        @Body() loginDto: LoginDto,
-        @Res({ passthrough: true }) response: Response,
-    ) {
+    async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response) {
         const result = await this.authService.login(loginDto);
 
         response.cookie('refreshToken', result.refreshToken, {
             httpOnly: true,
             sameSite: 'lax',
             secure: false,
-            maxAge: loginDto.rememberMe
-                ? 1000 * 60 * 60 * 24 * 30
-                : 1000 * 60 * 60 * 24 * 7,
+            maxAge: loginDto.rememberMe ? 1000 * 60 * 60 * 24 * 30 : 1000 * 60 * 60 * 24 * 7,
         });
 
         return {
@@ -67,10 +62,7 @@ export class AuthController {
     })
     @ApiUnauthorizedResponse({ description: 'Invalid refresh token.' })
     @Post('refresh')
-    async refresh(
-        @Req() request: Request,
-        @Res({ passthrough: true }) response: Response,
-    ) {
+    async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
         const refreshToken = getRefreshTokenFromRequest(request);
 
         if (!refreshToken) {
@@ -96,10 +88,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Logout and clear refresh token cookie' })
     @ApiOkResponse({ description: 'Clears refresh token cookie.' })
     @Post('logout')
-    async logout(
-        @Req() request: Request,
-        @Res({ passthrough: true }) response: Response,
-    ) {
+    async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
         const refreshToken = getRefreshTokenFromRequest(request);
 
         if (refreshToken) {

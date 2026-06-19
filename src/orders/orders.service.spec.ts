@@ -100,9 +100,7 @@ describe('OrdersService', () => {
 
         repositoryMock.find.mockResolvedValue(orders);
 
-        await expect(
-            service.findAll({ playerId: 'player-1' }),
-        ).resolves.toEqual([orders[0]]);
+        await expect(service.findAll({ playerId: 'player-1' })).resolves.toEqual([orders[0]]);
     });
 
     it('should filter orders by pokemon status', async () => {
@@ -135,9 +133,7 @@ describe('OrdersService', () => {
 
         repositoryMock.find.mockResolvedValue(orders);
 
-        await expect(service.findAll({ status: 'Pronto' })).resolves.toEqual([
-            orders[1],
-        ]);
+        await expect(service.findAll({ status: 'Pronto' })).resolves.toEqual([orders[1]]);
     });
 
     it('should filter orders by payment status', async () => {
@@ -170,9 +166,7 @@ describe('OrdersService', () => {
 
         repositoryMock.find.mockResolvedValue(orders);
 
-        await expect(
-            service.findAll({ paymentStatus: 'partial' }),
-        ).resolves.toEqual([orders[1]]);
+        await expect(service.findAll({ paymentStatus: 'partial' })).resolves.toEqual([orders[1]]);
     });
 
     it('should get order by id', async () => {
@@ -199,9 +193,7 @@ describe('OrdersService', () => {
     it('should throw NotFoundException when order does not exist', async () => {
         repositoryMock.findOne.mockResolvedValue(null);
 
-        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(
-            NotFoundException,
-        );
+        await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should create order', async () => {
@@ -273,9 +265,7 @@ describe('OrdersService', () => {
         };
 
         repositoryMock.findOne.mockResolvedValue(order);
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         await expect(service.update('order-id', dto)).resolves.toEqual({
             ...order,
@@ -310,18 +300,14 @@ describe('OrdersService', () => {
         };
 
         repositoryMock.findOne.mockResolvedValue(order);
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
         playersServiceMock.findOne.mockResolvedValue({
             id: 'new-player-id',
         });
 
         await service.update('order-id', dto);
 
-        expect(playersServiceMock.findOne).toHaveBeenCalledWith(
-            'new-player-id',
-        );
+        expect(playersServiceMock.findOne).toHaveBeenCalledWith('new-player-id');
     });
 
     it('should delete order', async () => {

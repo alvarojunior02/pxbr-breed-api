@@ -90,9 +90,7 @@ describe('SettingsService', () => {
         };
 
         repositoryMock.findOne.mockResolvedValue(settings);
-        repositoryMock.save.mockImplementation((value) =>
-            Promise.resolve(value),
-        );
+        repositoryMock.save.mockImplementation((value) => Promise.resolve(value));
 
         await expect(service.update(dto)).resolves.toEqual({
             ...settings,
