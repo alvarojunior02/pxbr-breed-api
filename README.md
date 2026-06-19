@@ -10,6 +10,7 @@
 ![Auth](https://img.shields.io/badge/auth-JWT%20%2B%20Refresh%20Token-green)
 ![Tests](https://img.shields.io/badge/tests-Jest-c21325)
 ![Deploy](https://img.shields.io/badge/deploy-Render%20%2B%20Supabase-black)
+[![API CI](https://github.com/alvarojunior02/pxbr-breed-api/actions/workflows/ci.yml/badge.svg)](https://github.com/alvarojunior02/pxbr-breed-api/actions/workflows/ci.yml)
 
 API REST do PXBR Breed, desenvolvida com NestJS, TypeORM, PostgreSQL, JWT, Swagger e Jest.
 
