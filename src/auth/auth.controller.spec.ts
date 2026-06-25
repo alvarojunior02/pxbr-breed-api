@@ -1,4 +1,5 @@
 ﻿import { UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import type { Request, Response } from 'express';
 import { UserRole } from '../users/entities/user.entity';
@@ -14,6 +15,10 @@ describe('AuthController', () => {
         logout: jest.fn(),
     };
 
+    const configServiceMock = {
+        get: jest.fn(),
+    };
+
     const responseMock = {
         cookie: jest.fn(),
         clearCookie: jest.fn(),
@@ -27,12 +32,24 @@ describe('AuthController', () => {
                     provide: AuthService,
                     useValue: authServiceMock,
                 },
+                {
+                    provide: ConfigService,
+                    useValue: configServiceMock,
+                },
             ],
         }).compile();
 
         controller = module.get<AuthController>(AuthController);
 
         jest.clearAllMocks();
+
+        configServiceMock.get.mockImplementation((key: string) => {
+            if (key === 'APP_ENV') {
+                return 'development';
+            }
+
+            return undefined;
+        });
     });
 
     it('should be defined', () => {
@@ -68,7 +85,46 @@ describe('AuthController', () => {
             httpOnly: true,
             sameSite: 'lax',
             secure: false,
+            path: '/',
             maxAge: 1000 * 60 * 60 * 24 * 30,
+        });
+    });
+
+    it('should set production refresh token cookie options on login', async () => {
+        configServiceMock.get.mockImplementation((key: string) => {
+            if (key === 'APP_ENV') {
+                return 'production';
+            }
+
+            return undefined;
+        });
+
+        const loginDto = {
+            email: 'admin@pxbr.local',
+            password: 'admin-password',
+            rememberMe: false,
+        };
+
+        const result = {
+            user: {
+                id: 'user-id',
+                email: loginDto.email,
+                role: UserRole.ADMIN,
+            },
+            accessToken: 'access-token',
+            refreshToken: 'refresh-token',
+        };
+
+        authServiceMock.login.mockResolvedValue(result);
+
+        await controller.login(loginDto, responseMock);
+
+        expect(responseMock.cookie).toHaveBeenCalledWith('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            path: '/',
+            maxAge: 1000 * 60 * 60 * 24 * 7,
         });
     });
 
@@ -101,6 +157,7 @@ describe('AuthController', () => {
             httpOnly: true,
             sameSite: 'lax',
             secure: false,
+            path: '/',
             maxAge: 1000 * 60 * 60 * 24 * 7,
         });
     });
@@ -146,6 +203,30 @@ describe('AuthController', () => {
             httpOnly: true,
             sameSite: 'lax',
             secure: false,
+            path: '/',
+        });
+    });
+
+    it('should clear production refresh token cookie on logout', async () => {
+        configServiceMock.get.mockImplementation((key: string) => {
+            if (key === 'APP_ENV') {
+                return 'production';
+            }
+
+            return undefined;
+        });
+
+        const requestMock = {
+            cookies: {},
+        } as unknown as Request;
+
+        await controller.logout(requestMock, responseMock);
+
+        expect(responseMock.clearCookie).toHaveBeenCalledWith('refreshToken', {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            path: '/',
         });
     });
 
@@ -167,6 +248,7 @@ describe('AuthController', () => {
             httpOnly: true,
             sameSite: 'lax',
             secure: false,
+            path: '/',
         });
     });
 

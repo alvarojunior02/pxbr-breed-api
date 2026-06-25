@@ -8,6 +8,7 @@ import {
     UnauthorizedException,
     UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
     ApiBearerAuth,
     ApiCookieAuth,
@@ -16,19 +17,38 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import type { Request, Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
+import type { CookieOptions, Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { AuthUser } from './types/auth-user.type';
 import { getRefreshTokenFromRequest } from './utils/cookies';
-import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly configService: ConfigService,
+    ) {}
+
+    private isProduction(): boolean {
+        return this.configService.get<string>('APP_ENV') === 'production';
+    }
+
+    private getRefreshTokenCookieOptions(maxAge?: number): CookieOptions {
+        const isProduction = this.isProduction();
+
+        return {
+            httpOnly: true,
+            sameSite: isProduction ? 'none' : 'lax',
+            secure: isProduction,
+            path: '/',
+            ...(maxAge ? { maxAge } : {}),
+        };
+    }
 
     @ApiOperation({ summary: 'Login with email and password' })
     @ApiOkResponse({
@@ -40,12 +60,13 @@ export class AuthController {
     async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response) {
         const result = await this.authService.login(loginDto);
 
-        response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: false,
-            maxAge: loginDto.rememberMe ? 1000 * 60 * 60 * 24 * 30 : 1000 * 60 * 60 * 24 * 7,
-        });
+        response.cookie(
+            'refreshToken',
+            result.refreshToken,
+            this.getRefreshTokenCookieOptions(
+                loginDto.rememberMe ? 1000 * 60 * 60 * 24 * 30 : 1000 * 60 * 60 * 24 * 7,
+            ),
+        );
 
         return {
             user: result.user,
@@ -71,12 +92,11 @@ export class AuthController {
 
         const result = await this.authService.refresh(refreshToken);
 
-        response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: false,
-            maxAge: 1000 * 60 * 60 * 24 * 7,
-        });
+        response.cookie(
+            'refreshToken',
+            result.refreshToken,
+            this.getRefreshTokenCookieOptions(1000 * 60 * 60 * 24 * 7),
+        );
 
         return {
             user: result.user,
@@ -101,11 +121,7 @@ export class AuthController {
             }
         }
 
-        response.clearCookie('refreshToken', {
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: false,
-        });
+        response.clearCookie('refreshToken', this.getRefreshTokenCookieOptions());
 
         return {
             success: true,
